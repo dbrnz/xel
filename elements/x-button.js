@@ -470,7 +470,7 @@ export default class XButtonElement extends HTMLElement {
   #canOpenPopover() {
     let result = false;
 
-    if (this.disabled === false) {
+    if (this.disabled === false && this.toggled === true) {
       let popover = this.querySelector(":scope > x-popover");
 
       if (popover && popover.hasAttribute("opened") === false ) {
