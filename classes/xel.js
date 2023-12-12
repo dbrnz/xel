@@ -1,14 +1,14 @@
 
 // @copyright
-//   © 2016-2022 Jarosław Foksa
+//   © 2016-2023 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
-import ColorParser from "./color-parser.js";
 import DOMPurify from "../node_modules/dompurify/dist/purify.es.js";
 import EventEmitter from "./event-emitter.js";
 
 import {compareArrays} from "../utils/array.js";
+import {convertColor, parseColor, serializeColor} from "../utils/color.js";
 import {getIconset} from "../utils/icon.js";
 import {FluentBundle, FluentResource, FluentNumber, FluentNone} from "../node_modules/@fluent/bundle/esm/index.js";
 import {getOperatingSystemName} from "../utils/system.js";
@@ -19,6 +19,7 @@ import {getRelDisplayDate} from "../utils/time.js";
 // @event accentcolorchange
 // @event iconsetschange
 // @event localeschange
+// @event configchange
 export default new class Xel extends EventEmitter {
   // @type string?
   //
@@ -238,6 +239,41 @@ export default new class Xel extends EventEmitter {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  getConfig(key, defaultValue = null) {
+    let rawValue = localStorage.getItem(key);
+    return (rawValue === null) ? defaultValue : JSON.parse(rawValue);
+  }
+
+  setConfig(key, value) {
+    let beforeRawValue = localStorage.getItem(key);
+
+    if (value === null) {
+      delete localStorage[key];
+    }
+    else {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    let afterRawValue = localStorage.getItem(key);
+
+    if (beforeRawValue !== afterRawValue) {
+      this.dispatchEvent(new CustomEvent("configchange", {detail: {key, value, origin: "self"}}));
+    }
+  }
+
+  clearConfig() {
+    if (localStorage.length > 0) {
+      let keys = Object.keys(localStorage);
+      localStorage.clear();
+
+      for (let key of keys) {
+        this.dispatchEvent(new CustomEvent("configchange", {detail: {key, value: null, origin: "self"}}));
+      }
+    }
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   #theme = null;
   #accentColor = null;
   #iconsets = [];
@@ -292,6 +328,11 @@ export default new class Xel extends EventEmitter {
       let observer = new MutationObserver((mutations) => this.#onHeadChange(mutations));
       observer.observe(document.head, {attributes: true, subtree: true});
     }
+
+    // Observe localStorage for changes
+    {
+      window.addEventListener("storage", (event) => this.#onStorageChange(event));
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,6 +376,15 @@ export default new class Xel extends EventEmitter {
       this.#loadLocales(this.#locales).then(() => {
         this.dispatchEvent(new CustomEvent("localeschange"));
       });
+    }
+  }
+
+  // Fired only when storage is changed by OTHER app instance running in a separate tab or window.
+  #onStorageChange(event) {
+    if (event.storageArea === window.localStorage) {
+      let key = event.key;
+      let value = (event.newValue === null) ? null : JSON.parse(event.newValue);
+      this.dispatchEvent(new CustomEvent("configchange", {detail: {key, value, origin: "other"}}));
     }
   }
 
@@ -500,13 +550,19 @@ export default new class Xel extends EventEmitter {
       serializedColor = this.presetAccentColors[serializedColor];
     }
 
-    let [h, s, l, a] = new ColorParser().parse(serializedColor, "hsla");
+    let color = convertColor(parseColor(serializedColor), "hsl");
+    let [h, s, l] = color.coords;
     let rule = [...this.#themeStyleSheet.cssRules].reverse().find($0 => $0.type === 1 && $0.selectorText === "body");
+
+    // @bugfix: https://github.com/LeaVerou/color.js/issues/328
+    if (Number.isNaN(h)) {
+      h = 0;
+    }
 
     rule.style.setProperty("--accent-color-h", h);
     rule.style.setProperty("--accent-color-s", `${s}%`);
     rule.style.setProperty("--accent-color-l", `${l}%`);
-    rule.style.setProperty("--accent-color-a", a);
+    rule.style.setProperty("--accent-color-a", color.alpha);
   }
 
   #getSettings() {

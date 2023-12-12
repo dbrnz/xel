@@ -1,7 +1,7 @@
 
 /*
  * @copyright
- *   © 2016-2022 Jarosław Foksa
+ *   © 2016-2023 Jarosław Foksa
  * @license
  *   Xel Cupertino License v1 (check LICENSE.md for details)
  * @doc
@@ -63,7 +63,8 @@ body {
   --checkboard-background: linear-gradient( 45deg, #d6d6d6 25%, #0000   25%)  0px  0px / 10px 10px,
                            linear-gradient(-45deg, #d6d6d6 25%, #0000   25%)  0px  5px / 10px 10px,
                            linear-gradient( 45deg, #0000   75%, #d6d6d6 75%)  5px -5px / 10px 10px,
-                           linear-gradient(-45deg, #0000   75%, #d6d6d6 75%) -5px  0px / 10px 10px;
+                           linear-gradient(-45deg, #0000   75%, #d6d6d6 75%) -5px  0px / 10px 10px,
+                           white;
 }
 
 /*****************************************************************************************************************/
@@ -384,29 +385,13 @@ x-button[skin="dock"][toggled] {
   color: white;
   background: var(--accent-color);
   border-color: var(--darkest-accent-color);
+  z-index: 1;
 }
 x-button[skin="dock"][pressed] {
   color: white;
   background: var(--dark-accent-color);
   border-color: var(--darkest-accent-color);
-}
-
-/* Horizontal siblings */
-x-buttons:not([vertical]) > x-button[skin="dock"]:not(:last-of-type) {
-  border-right: none;
-}
-x-buttons:not([vertical]) > x-button[skin="dock"][toggled] + x-button[skin="dock"],
-x-buttons:not([vertical]) > x-button[skin="dock"][pressed] + x-button[skin="dock"] {
-  border-left-color: var(--darkest-accent-color);
-}
-
-/* Vertical siblings */
-x-buttons[vertical] > x-button[skin="dock"]:not(:last-of-type) {
-  border-bottom: none;
-}
-x-buttons[vertical] > x-button[skin="dock"][toggled] + x-button[skin="dock"],
-x-buttons[vertical] > x-button[skin="dock"][pressed] + x-button[skin="dock"] {
-  border-top-color: var(--darkest-accent-color);
+  z-index: 2;
 }
 
 /*****************************************************************************************************************/
@@ -967,6 +952,42 @@ x-numberinput[condensed]:focus > x-stepper {
 /*****************************************************************************************************************/
 
 /**
+ * Color input
+ */
+
+x-colorinput {
+  background: white;
+  border: 1px solid var(--border-color);
+}
+x-colorinput:focus {
+  border-color: var(--accent-color);
+  outline: 3px solid var(--lightest-accent-color);
+}
+x-colorinput[error] {
+  border-color: var(--error-color);
+  outline: 3px solid rgba(255, 0, 0, 0.49);
+}
+
+/* Arrow */
+x-colorinput::part(arrow) {
+  color: white;
+  background: linear-gradient(to bottom, var(--light-accent-color), var(--accent-color));
+  border: 1px solid var(--dark-accent-color);
+  border-radius: 4px;
+  padding: 5px 2px;
+}
+x-colorinput[size="small"]::part(arrow) {
+  padding: 2px;
+}
+
+/* Placeholder */
+x-colorinput > x-label {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/*****************************************************************************************************************/
+
+/**
  * Text editor
  */
 
@@ -1029,12 +1050,10 @@ x-slider::part(thumb):focus {
 /*****************************************************************************************************************/
 
 /**
- * Color pickers
+ * Color picker
  */
 
-x-barscolorpicker::part(slider),
-x-rectcolorpicker::part(slider),
-x-wheelcolorpicker::part(slider) {
+x-colorpicker::part(slider) {
   border-radius: 4px;
 }
 

@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2022 Jarosław Foksa
+//   © 2016-2023 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -118,5 +118,5 @@ export let getClosestScrollableAncestor = (element) => {
     }
   };
 
-  return walk(element);
+  return walk(element.parentElement || element.parentNode.host);
 };

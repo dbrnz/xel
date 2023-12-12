@@ -1,7 +1,7 @@
 
 /*
  * @copyright
- *   © 2016-2022 Jarosław Foksa
+ *   © 2016-2023 Jarosław Foksa
  * @license
  *   MIT License (check LICENSE.md for details)
  */
@@ -564,6 +564,16 @@ x-buttons[vertical] > x-button[skin="dock"][size="large"] {
   min-height: 45px;
 }
 
+/* Horizontal siblings */
+x-buttons:not([vertical]) > x-button[skin="dock"] + x-button[skin="dock"] {
+  margin-left: -1px;
+}
+
+/* Vertical siblings */
+x-buttons[vertical] > x-button[skin="dock"] + x-button[skin="dock"] {
+  margin-top: -1px;
+}
+
 /*****************************************************************************************************************/
 
 /**
@@ -841,7 +851,7 @@ x-menuitem x-label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 14px;
+  font-size: inherit;
 }
 x-menuitem img + x-label,
 x-menuitem x-swatch + x-label,
@@ -953,7 +963,7 @@ x-popover:not(:defined) {
 /* Main */
 x-popover > main {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   overflow: auto;
 }
 
@@ -1311,12 +1321,10 @@ x-slider > x-label {
 /*****************************************************************************************************************/
 
 /**
- * Color pickers
+ * Color picker
  */
 
-x-barscolorpicker:not(:defined),
-x-rectcolorpicker:not(:defined),
-x-wheelcolorpicker:not(:defined) {
+x-colorpicker:not(:defined) {
   display: none;
 }
 

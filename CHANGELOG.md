@@ -1,6 +1,26 @@
 
 # CHANGELOG
 
+## 0.24.3 (2023-11-28)
+
+- Simplify dock button stylings
+
+## 0.24.2 (2023-10-29)
+
+- Option to show color values using uppercase hexadecimal notation
+- Make the leading "#" char optional when entering hexadecimal color values
+- [Bugfix] Popover arrow styles are not updated when changing themes
+
+## 0.24.1 (2023-10-28)
+
+- [Bugfix] Can't focus `<x-tagsinput>` on WebKit
+
+## 0.24.0 (2023-10-24)
+
+- Replace `<x-barscolorpicker>`, `<x-rectcolorpicker>` and `<x-wheelcolorpicker>` with unified `<x-colorpicker>`
+- Display P3, Rec. 2020, A98 RGB and ProPhoto wide gamut color spaces support
+- Allow colors to be specified in any valid CSS format
+
 ## 0.23.0 (2023-09-24)
 
 - Initial support for Firefox 119

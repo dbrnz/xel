@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2022 Jarosław Foksa
+//   © 2016-2023 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -344,7 +344,7 @@ export default class PTSetupPageElement extends PTPage {
     itemsHTML += `
       <hr/>
       <x-menuitem value="custom">
-        <x-icon href="/iconsets/other.svg#color-wheel"></x-icon>
+        <x-icon href="/iconsets/portal.svg#color-wheel"></x-icon>
         <x-label>Custom</x-label>
       </x-menuitem>
     `;

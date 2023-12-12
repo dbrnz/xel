@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2022 Jarosław Foksa
+//   © 2016-2023 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -26,6 +26,14 @@ export default class XSwatchElement extends HTMLElement {
       cursor: default;
       box-sizing: border-box;
       overflow: hidden;
+      /* Checkerboard pattern */
+      background-color: white;
+      background-size: 6px 6px;
+      background-position: 0 0, 0 3px, 3px -3px, -3px 0px;
+      background-image: linear-gradient(45deg, #d6d6d6 25%, transparent 25%),
+                        linear-gradient(-45deg, #d6d6d6 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #d6d6d6 75%),
+                        linear-gradient(-45deg, transparent 75%, #d6d6d6 75%);
     }
 
     #preview {
@@ -63,7 +71,6 @@ export default class XSwatchElement extends HTMLElement {
   }
 
   #shadowRoot = null;
-  #elements = {};
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +82,7 @@ export default class XSwatchElement extends HTMLElement {
     this.#shadowRoot.append(document.importNode(XSwatchElement.#shadowTemplate.content, true));
 
     for (let element of this.#shadowRoot.querySelectorAll("[id]")) {
-      this.#elements[element.id] = element;
+      this["#" + element.id] = element;
     }
   }
 
@@ -92,7 +99,7 @@ export default class XSwatchElement extends HTMLElement {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   #updatePreview() {
-    this.#elements["preview"].style.background = this.value;
+    this["#preview"].style.background = this.value;
   }
 }
 

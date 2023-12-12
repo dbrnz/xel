@@ -1,7 +1,7 @@
 
 /*
  * @copyright
- *   © 2016-2022 Jarosław Foksa
+ *   © 2016-2023 Jarosław Foksa
  * @license
  *   MIT License (check LICENSE.md for details)
  * @doc
@@ -65,7 +65,8 @@ body {
   --checkboard-background: linear-gradient( 45deg, #dedede 25%, #0000   25%)  0px  0px / 10px 10px,
                            linear-gradient(-45deg, #dedede 25%, #0000   25%)  0px  5px / 10px 10px,
                            linear-gradient( 45deg, #0000   75%, #dedede 75%)  5px -5px / 10px 10px,
-                           linear-gradient(-45deg, #0000   75%, #dedede 75%) -5px  0px / 10px 10px;
+                           linear-gradient(-45deg, #0000   75%, #dedede 75%) -5px  0px / 10px 10px,
+                           white;
 }
 
 /*****************************************************************************************************************/
@@ -443,22 +444,7 @@ x-button[skin="dock"][toggled] {
   color: var(--light-background-color);
   background: var(--accent-color);
   border-color: var(--darkest-accent-color);
-}
-
-/* Horizontal siblings */
-x-buttons:not([vertical]) > x-button[skin="dock"]:not(:last-of-type) {
-  border-right: none;
-}
-x-buttons:not([vertical]) > x-button[skin="dock"][toggled] + x-button {
-  border-left-color: var(--darkest-accent-color);
-}
-
-/* Vertical siblings */
-x-buttons[vertical] > x-button[skin="dock"]:not(:last-of-type) {
-  border-bottom: none;
-}
-x-buttons[vertical] > x-button[skin="dock"][toggled] + x-button {
-  border-top-color: var(--darkest-accent-color);
+  z-index: 1;
 }
 
 /*****************************************************************************************************************/
@@ -1060,6 +1046,41 @@ x-numberinput[condensed] > x-stepper::part(decrement-arrow) {
 /*****************************************************************************************************************/
 
 /**
+ * Color input
+ */
+
+x-colorinput {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+}
+x-colorinput:focus {
+  outline: 2px solid var(--light-accent-color);
+  outline-offset: -1px;
+}
+x-colorinput[error] {
+  background: var(--error-background-color);
+  outline: 2px solid var(--error-color);
+  outline-offset: -1px;
+}
+
+/* Arrow */
+x-colorinput::part(arrow) {
+  padding: 8px 4px 8px 2px;
+  --path-data: M 6 30 L 93 30 L 50 76 L 6 30 Z;
+}
+x-colorinput[size="small"]::part(arrow) {
+  padding: 4px 4px 4px 0;
+}
+
+/* Placeholder */
+x-colorinput > x-label {
+  color: rgba(0, 0, 0, 0.4);
+  font-weight: 600;
+}
+
+/*****************************************************************************************************************/
+
+/**
  * Text editor
  */
 
@@ -1125,12 +1146,10 @@ x-slider::part(thumb):focus {
 /*****************************************************************************************************************/
 
 /**
- * Color pickers
+ * Color picker
  */
 
-x-barscolorpicker::part(slider),
-x-rectcolorpicker::part(slider),
-x-wheelcolorpicker::part(slider) {
+x-colorpicker::part(slider) {
   border-radius: 6px;
 }
 
