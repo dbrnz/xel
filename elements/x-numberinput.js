@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -44,6 +44,7 @@ export default class XNumberInputElement extends HTMLElement {
       height: 32px;
       box-sizing: border-box;
       font-size: 12.5px;
+      --inner-padding: 0 6px;
     }
     :host(:hover) {
       cursor: text;
@@ -75,7 +76,7 @@ export default class XNumberInputElement extends HTMLElement {
       align-items: center;
       width: 100%;
       height: 100%;
-      padding: 0 6px;
+      padding: var(--inner-padding);
       box-sizing: border-box;
       overflow: hidden;
     }
@@ -92,6 +93,10 @@ export default class XNumberInputElement extends HTMLElement {
       line-height: 10;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
+    }
+    :host([disabled]) #editor {
+      user-select: none;
+      -webkit-user-select: none;
     }
     #editor::-webkit-scrollbar {
       display: none;
@@ -405,8 +410,13 @@ export default class XNumberInputElement extends HTMLElement {
 
   #commitEditorChanges() {
     let editorTextContent = this["#editor"].textContent;
-    let editorValue = editorTextContent.trim() === "" ? null : parseFloat(editorTextContent);
-    let normalizedEditorValue = editorValue === null ? null : normalize(editorValue, this.min, this.max);
+    let editorValue = parseFloat(editorTextContent);
+
+    if (Number.isNaN(editorValue)) {
+      editorValue = null;
+    }
+
+    let normalizedEditorValue = (editorValue === null) ? null : normalize(editorValue, this.min, this.max);
 
     if (normalizedEditorValue !== this.value) {
       this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
@@ -416,6 +426,10 @@ export default class XNumberInputElement extends HTMLElement {
     }
     else if (editorValue !== this.value) {
       this.value = normalizedEditorValue;
+    }
+    else {
+      // Reset the editor text content just in case the currently entered raw value is invalid
+      this.#updateEditorTextContent();
     }
   }
 
@@ -531,7 +545,7 @@ export default class XNumberInputElement extends HTMLElement {
   }
 
   #onDisabledAttributeChange() {
-    this["#editor"].disabled = this.disabled;
+    this["#editor"].contentEditable = this.disabled ? "false" : "plaintext-only";
     this.#updateAccessabilityAttributes();
   }
 
@@ -541,8 +555,7 @@ export default class XNumberInputElement extends HTMLElement {
   }
 
   #onFocusOut() {
-    // Safari 16.4 does not support ShadowRoot.prototype.getSelection
-    if (this.#shadowRoot.getSelection) {
+    if (getBrowserEngine() !== "webkit") {
       this.#shadowRoot.getSelection().collapse(this["#main"]);
     }
 

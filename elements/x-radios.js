@@ -1,10 +1,11 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
 // @element x-radios
+// @event ^toggle - User toggled a radio.
 export default class XRadiosElement extends HTMLElement {
   // @property
   // @attribute

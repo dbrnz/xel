@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -177,7 +177,8 @@ export default class XColorInputElement extends HTMLElement {
 
   // @property
   // @attribute
-  // @type "srgb" || "p3"
+  // @type "srgb" || "srgb-linear" || "p3" || "rec2020" || "a98rgb" || "prophoto" ||
+  //       "oklch" || "oklab" || "lch" || "lab" || "xyz-d65" || "xyz-d50"
   // @default "srgb"
   get space() {
     return this.hasAttribute("space") ? this.getAttribute("space") : "srgb";
@@ -282,7 +283,7 @@ export default class XColorInputElement extends HTMLElement {
   constructor() {
     super();
 
-    this.#shadowRoot = this.attachShadow({mode: "closed", delegatesFocus: false});
+    this.#shadowRoot = this.attachShadow({mode: "closed", delegatesFocus: true});
     this.#shadowRoot.adoptedStyleSheets = [Xel.themeStyleSheet, XColorInputElement.#shadowStyleSheet];
     this.#shadowRoot.append(document.importNode(XColorInputElement.#shadowTemplate.content, true));
 
@@ -308,6 +309,7 @@ export default class XColorInputElement extends HTMLElement {
     this["#input"].addEventListener("input",  (event) => this.#onInputInput(event));
     this["#input"].addEventListener("blur",  (event) => this.#onInputBlur(event));
     this["#input"].addEventListener("search", (event) => this.#onInputSearch(event));
+    this["#input"].addEventListener("pointerdown",  (event) => this.#onInputPointerDown(event));
     this["#input"].addEventListener("contextmenu", () => this.#onInputContextMenu());
     this["#arrow"].addEventListener("pointerdown", (event) => this.#onArrowPointerDown(event));
     this["#arrow"].addEventListener("click", (event) => this.#onArrowClick(event));
@@ -316,8 +318,7 @@ export default class XColorInputElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.#format = Xel.getConfig(`x-colorinput:${this.space}Format`, this.space === "srgb" ? "hex" : "color");
-
+    this.#format = Xel.getConfig(`x-colorinput:${this.space}Format`, this.#getDefaultFormat(this.space));
     this.#update();
 
     if (this.#error) {
@@ -457,7 +458,7 @@ export default class XColorInputElement extends HTMLElement {
         `;
       }
 
-      else if (["p3", "rec2020", "prophoto", "a98rgb"].includes(color.spaceId)) {
+      else if (["srgb-linear", "p3", "rec2020", "prophoto", "a98rgb", "xyz", "xyz-d65", "xyz-d50"].includes(color.spaceId)) {
         menu.innerHTML = `
           <x-menuitem value="color">
             <x-label>${prettySerializeColor(color, "color")}</x-label>
@@ -477,6 +478,42 @@ export default class XColorInputElement extends HTMLElement {
 
           <x-menuitem value="oklch-alt">
             <x-label>${prettySerializeColor(color, "oklch-alt")}</x-label>
+          </x-menuitem>
+        `;
+      }
+
+      else if (color.spaceId === "oklab") {
+        menu.innerHTML = `
+          <x-menuitem value="oklab">
+            <x-label>${prettySerializeColor(color, "oklab")}</x-label>
+          </x-menuitem>
+
+          <x-menuitem value="oklab-alt">
+            <x-label>${prettySerializeColor(color, "oklab-alt")}</x-label>
+          </x-menuitem>
+        `;
+      }
+
+      else if (color.spaceId === "lch") {
+        menu.innerHTML = `
+          <x-menuitem value="lch">
+            <x-label>${prettySerializeColor(color, "lch")}</x-label>
+          </x-menuitem>
+
+          <x-menuitem value="lch-alt">
+            <x-label>${prettySerializeColor(color, "lch-alt")}</x-label>
+          </x-menuitem>
+        `;
+      }
+
+      else if (color.spaceId === "lab") {
+        menu.innerHTML = `
+          <x-menuitem value="lab">
+            <x-label>${prettySerializeColor(color, "lab")}</x-label>
+          </x-menuitem>
+
+          <x-menuitem value="lab-alt">
+            <x-label>${prettySerializeColor(color, "lab-alt")}</x-label>
           </x-menuitem>
         `;
       }
@@ -753,20 +790,42 @@ export default class XColorInputElement extends HTMLElement {
     return value;
   }
 
+  #getDefaultFormat(space) {
+    let format = "color";
+
+    if (space === "srbg") {
+      format = "hex";
+    }
+    else if (space === "oklch") {
+      format = "oklch";
+    }
+    else if (space === "oklab") {
+      format = "oklab";
+    }
+    else if (space === "lch") {
+      format = "lch";
+    }
+    else if (space === "lab") {
+      format = "lab";
+    }
+
+    return format;
+  };
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   #onConfigChange(event) {
     let {key, value, origin} = event.detail;
 
     if (key === `x-colorinput:${this.space}Format`) {
-      this.#format = value;
+      this.#format = (value || this.#getDefaultFormat(this.space));
       this.#value = prettySerializeColor(convertColor(parseColor(this["#input"].value), this.space), this.#format);
       this.#updateInput();
     }
   }
 
   #onSpaceAttributeChange() {
-    this.#format = Xel.getConfig(`x-colorinput:${this.space}Format`, this.space === "srgb" ? "hex" : "color");
+    this.#format = Xel.getConfig(`x-colorinput:${this.space}Format`, this.#getDefaultFormat(this.space));
 
     if (this.isConnected) {
       this.#updateInput();
@@ -857,11 +916,16 @@ export default class XColorInputElement extends HTMLElement {
     }
     else if (event.code === "ArrowUp") {
       event.preventDefault();
+      event.stopPropagation();
       this.#changeNumericArgValueAtCaretPositionByStep("increment", event.shiftKey ? 10 : 1);
     }
     else if (event.code === "ArrowDown") {
       event.preventDefault();
+      event.stopPropagation();
       this.#changeNumericArgValueAtCaretPositionByStep("decrement", event.shiftKey ? 10 : 1);
+    }
+    else if (event.code === "Backspace") {
+      event.stopPropagation();
     }
   }
 
@@ -893,6 +957,14 @@ export default class XColorInputElement extends HTMLElement {
 
   #onInputSearch() {
     this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+  }
+
+  #onInputPointerDown(event) {
+    if (this["#input"].matches(":focus") === false) {
+      event.preventDefault();
+      this["#input"].focus();
+      this.selectAll();
+    }
   }
 
   #onInputContextMenu() {

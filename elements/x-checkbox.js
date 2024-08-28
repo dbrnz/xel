@@ -1,17 +1,19 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
 import Xel from "../classes/xel.js";
 
 import {createElement, closest} from "../utils/element.js";
+import {getBrowserEngine} from "../utils/system.js";
 import {html, css} from "../utils/template.js";
+import {sleep} from "../utils/time.js";
 
 // @element x-checkbox
 // @part indicator
-// @event toggle
+// @event ^toggle - User toggled on or off the checkbox.
 export default class XCheckboxElement extends HTMLElement {
   static observedAttributes = ["toggled", "mixed", "disabled"];
 
@@ -182,15 +184,27 @@ export default class XCheckboxElement extends HTMLElement {
     }
 
     this.addEventListener("pointerdown", (event) => this.#onPointerDown(event));
+    this.addEventListener("pointerenter", () => this.#onPointerEnter());
+    this.addEventListener("pointerleave", () => this.#onPointerLeave());
     this.addEventListener("click", (event) => this.#onClick(event));
     this.addEventListener("keydown", (event) => this.#onKeyDown(event));
   }
 
-  connectedCallback() {
+  async connectedCallback() {
     Xel.addEventListener("themechange", this.#xelThemeChangeListener = () => this.#updateCheckmarkPathData());
 
-    this.#updateCheckmarkPathData();
     this.#updateAccessabilityAttributes();
+
+    // @bugfix: Small delay is needed in order to make getComputedStyle() work properly on WebKit
+    if (getBrowserEngine() === "webkit") {
+      await sleep(10);
+
+      if (this.isConnected === false) {
+        return;
+      }
+    }
+
+    this.#updateCheckmarkPathData();
   }
 
   disconnectedCallback() {
@@ -264,6 +278,22 @@ export default class XCheckboxElement extends HTMLElement {
       if (ancestorFocusableElement) {
         ancestorFocusableElement.focus();
       }
+    }
+  }
+
+  #onPointerEnter() {
+    let tooltip = this.querySelector(":scope > x-tooltip");
+
+    if (tooltip && tooltip.disabled === false) {
+      tooltip.open(this);
+    }
+  }
+
+  #onPointerLeave() {
+    let tooltip = this.querySelector(":scope > x-tooltip");
+
+    if (tooltip) {
+      tooltip.close();
     }
   }
 

@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -18,7 +18,6 @@ export default class XBackdropElement extends HTMLElement {
       height: 100vh;
       z-index: 1000;
       touch-action: none;
-      will-change: opacity;
       cursor: default;
       background: rgba(0, 0, 0, 0.5);
     }

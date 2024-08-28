@@ -1,7 +1,7 @@
 
 /*
  * @copyright
- *   © 2016-2023 Jarosław Foksa
+ *   © 2016-2024 Jarosław Foksa
  * @license
  *   MIT License (check LICENSE.md for details)
  * @doc
@@ -509,7 +509,6 @@ x-button[skin="recessed"] > x-label {
 x-button[skin="nav"] {
   color: var(--text-color);
   border-radius: 8px;
-  cursor: default;
 }
 x-button[skin="nav"][toggled] {
   background: rgba(255, 255, 255, 0.12);
@@ -525,7 +524,7 @@ x-button[skin="nav"][pressed] {
 }
 
 /* Label */
-x-button[skin="nav"] x-label {
+x-button[skin="nav"] > x-label {
   font-weight: 600;
 }
 

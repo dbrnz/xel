@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -10,6 +10,8 @@ import {html, css} from "../utils/template.js";
 const DEBUG = false;
 
 // @element x-menubar
+// @event expand
+// @event collapse
 export default class XMenuBarElement extends HTMLElement {
   static observedAttributes = ["disabled"];
 
@@ -105,8 +107,9 @@ export default class XMenuBarElement extends HTMLElement {
     }
 
     this.addEventListener("focusout", (event) => this.#onFocusOut(event));
-    this.#shadowRoot.addEventListener("pointerover", (event) => this.#onShadowRootPointerOver(event));
     this.#shadowRoot.addEventListener("click", (event) => this.#onShadowRootClick(event));
+    this.#shadowRoot.addEventListener("pointerdown", (event) => this.#onShadowRootPointerDown(event));
+    this.#shadowRoot.addEventListener("pointerover", (event) => this.#onShadowRootPointerOver(event));
     this.#shadowRoot.addEventListener("wheel", (event) => this.#onShadowRootWheel(event));
     this.#shadowRoot.addEventListener("keydown", (event) => this.#onShadowRootKeyDown(event));
   }
@@ -136,6 +139,8 @@ export default class XMenuBarElement extends HTMLElement {
     let menu = item.querySelector(":scope > x-menu");
 
     if (menu && menu.opened === false) {
+      let wasExpanded = this.#expanded;
+
       item.focus();
       this.#expanded = true;
       this.style.touchAction = "none";
@@ -172,11 +177,17 @@ export default class XMenuBarElement extends HTMLElement {
 
         this["#backdrop"].removeAttribute("hidden");
       }
+
+      if (wasExpanded === false) {
+        this.dispatchEvent(new CustomEvent("expand"));
+      }
     }
   }
 
   #collapseMenubarItems() {
     return new Promise( async (resolve) => {
+      let wasExpanded = this.#expanded;
+
       this.#expanded = false;
       this.style.touchAction = null;
 
@@ -199,6 +210,10 @@ export default class XMenuBarElement extends HTMLElement {
 
       if (focusedMenuItem) {
         focusedMenuItem.blur();
+      }
+
+      if (wasExpanded === true) {
+        this.dispatchEvent(new CustomEvent("collapse"));
       }
 
       resolve();
@@ -259,18 +274,13 @@ export default class XMenuBarElement extends HTMLElement {
     let item = event.target.closest("x-menuitem");
     let ownerMenu = event.target.closest("x-menu");
 
-    if (item && item.disabled === false && (!ownerMenu || ownerMenu.contains(item))) {
-      let menu = item.querySelector("x-menu");
+    if (item && item.disabled === false && ownerMenu) {
+      let submenu = item.querySelector(":scope > x-menu");
 
-      if (item.parentElement === this) {
-        if (menu) {
-          menu.opened ? this.#collapseMenubarItems() : this.#expandMenubarItem(item);
-        }
-      }
-      else {
-        if (menu) {
-          if (menu.opened && menu.opened === false) {
-            menu.openNextToElement(item, "horizontal");
+      if (item.parentElement !== this) {
+        if (submenu) {
+          if (submenu.opened && submenu.opened === false) {
+            submenu.openNextToElement(item, "horizontal");
           }
         }
         else {
@@ -291,14 +301,31 @@ export default class XMenuBarElement extends HTMLElement {
     }
   }
 
-  #onShadowRootPointerOver(event) {
+  #onShadowRootPointerDown(event) {
     if (this.hasAttribute("closing")) {
       return;
     }
 
     let item = event.target.closest("x-menuitem");
 
-    if (event.target.closest("x-menu") === null && item && item.parentElement === this) {
+    if (item && item.disabled === false && item.parentElement === this) {
+      let submenu = item.querySelector(":scope > x-menu");
+
+      if (submenu) {
+        submenu.opened ? this.#collapseMenubarItems() : this.#expandMenubarItem(item);
+      }
+    }
+  }
+
+  #onShadowRootPointerOver(event) {
+    if (this.hasAttribute("closing")) {
+      return;
+    }
+
+    let item = event.target.closest("x-menuitem");
+    let ownerMenu = event.target.closest("x-menu");
+
+    if (item && item.disabled === false && item.parentElement === this && !ownerMenu) {
       if (this.#expanded && event.pointerType !== "touch") {
         if (item.hasAttribute("expanded") === false) {
           this.#expandMenubarItem(item);
@@ -338,13 +365,13 @@ export default class XMenuBarElement extends HTMLElement {
       if (refItem) {
         refItem.focus();
 
-        let menu = refItem.querySelector(":scope > x-menu");
+        let submenu = refItem.querySelector(":scope > x-menu");
 
-        if (menu) {
-          menu.tabIndex = -1;
+        if (submenu) {
+          submenu.tabIndex = -1;
 
-          menu.close().then(() => {
-            menu.tabIndex = -1;
+          submenu.close().then(() => {
+            submenu.tabIndex = -1;
           });
         }
       }

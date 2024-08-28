@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -44,6 +44,13 @@ export default class XTabElement extends HTMLElement {
     :host(:focus) {
       z-index: 10;
       outline: none;
+    }
+    :host([disabled]) {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    :host([hidden]) {
+      display: none;
     }
 
     #content {
@@ -153,7 +160,7 @@ export default class XTabElement extends HTMLElement {
 
   animateSelectionIndicator(toTab) {
     return new Promise(async (resolve) => {
-      if (this["#selection-indicator"].style.height !== "0px") {
+      if (getComputedStyle(this["#selection-indicator"]).height !== "0px") {
         let fromBBox = this.getBoundingClientRect();
         let toBBox = toTab.getBoundingClientRect();
 

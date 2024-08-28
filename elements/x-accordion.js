@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -35,6 +35,10 @@ export default class XAccordionElement extends HTMLElement {
       width: 100%;
       margin: 8px 0;
       box-sizing: border-box;
+    }
+    :host([disabled]) {
+      pointer-events: none;
+      opacity: 0.5;
     }
     :host([animating]) {
       overflow: hidden;
@@ -74,7 +78,7 @@ export default class XAccordionElement extends HTMLElement {
       background: transparent;
       outline: none;
     }
-    :host([expanded]) #arrow{
+    :host([expanded]) #arrow {
       transform: rotate(90deg);
     }
 
@@ -95,6 +99,19 @@ export default class XAccordionElement extends HTMLElement {
   }
   set expanded(expanded) {
     expanded ? this.setAttribute("expanded", "") : this.removeAttribute("expanded");
+  }
+
+  // @property
+  // @attribute
+  // @type boolean
+  // @default false
+  //
+  // Whether the accordion is disabled.
+  get disabled() {
+    return this.hasAttribute("disabled");
+  }
+  set disabled(disabled) {
+    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
   }
 
   // @property
@@ -163,7 +180,7 @@ export default class XAccordionElement extends HTMLElement {
   // @type () => Promise
   //
   // Expand the accordion. Returns a promise which will be resolved when the accordion finishes animating.
-  expand() {
+  expand(animate = true) {
     return new Promise(async (resolve) => {
       if (this.expanded === false) {
         let startBBox = this.getBoundingClientRect();
@@ -172,26 +189,35 @@ export default class XAccordionElement extends HTMLElement {
           this.#currentAnimation.finish();
         }
 
-        this.expanded = true;
         this.removeAttribute("animating");
-        let endBBox = this.getBoundingClientRect();
-        this.setAttribute("animating", "");
 
-        let animation = this.animate(
-          {
-            height: [startBBox.height + "px", endBBox.height + "px"],
-          },
-          {
-            duration: 300,
-            easing: "cubic-bezier(0.4, 0, 0.2, 1)"
+        if (animate) {
+          this.expanded = true;
+
+          let endBBox = this.getBoundingClientRect();
+          this.setAttribute("animating", "");
+
+          let animation = this.animate(
+            {
+              height: [startBBox.height + "px", endBBox.height + "px"],
+            },
+            {
+              duration: 300,
+              easing: "cubic-bezier(0.4, 0, 0.2, 1)"
+            }
+          );
+
+          this.#currentAnimation = animation;
+          await animation.finished;
+
+          if (this.#currentAnimation === animation) {
+            this.removeAttribute("animating");
           }
-        );
-
-        this.#currentAnimation = animation;
-        await animation.finished;
-
-        if (this.#currentAnimation === animation) {
-          this.removeAttribute("animating");
+        }
+        else {
+          this["#arrow"].style.transition = "none";
+          this.expanded = true;
+          this["#arrow"].style.transition = null;
         }
       }
 
@@ -203,7 +229,7 @@ export default class XAccordionElement extends HTMLElement {
   // @type () => Promise
   //
   // Collapse the accordion. Returns a promise which will be resolved when the accordion finishes animating.
-  collapse() {
+  collapse(animate = true) {
     return new Promise(async (resolve) => {
       if (this.expanded === true) {
         let startBBox = this.getBoundingClientRect();
@@ -212,26 +238,35 @@ export default class XAccordionElement extends HTMLElement {
           this.#currentAnimation.finish();
         }
 
-        this.expanded = false;
         this.removeAttribute("animating");
-        let endBBox = this.getBoundingClientRect();
-        this.setAttribute("animating", "");
 
-        let animation = this.animate(
-          {
-            height: [startBBox.height + "px", endBBox.height + "px"],
-          },
-          {
-            duration: 300,
-            easing: "cubic-bezier(0.4, 0, 0.2, 1)"
+        if (animate) {
+          this.expanded = false;
+
+          let endBBox = this.getBoundingClientRect();
+          this.setAttribute("animating", "");
+
+          let animation = this.animate(
+            {
+              height: [startBBox.height + "px", endBBox.height + "px"],
+            },
+            {
+              duration: 300,
+              easing: "cubic-bezier(0.4, 0, 0.2, 1)"
+            }
+          );
+
+          this.#currentAnimation = animation;
+          await animation.finished;
+
+          if (this.#currentAnimation === animation) {
+            this.removeAttribute("animating");
           }
-        );
-
-        this.#currentAnimation = animation;
-        await animation.finished;
-
-        if (this.#currentAnimation === animation) {
-          this.removeAttribute("animating");
+        }
+        else {
+          this["#arrow"].style.transition = "none";
+          this.expanded = false;
+          this["#arrow"].style.transition = null;
         }
       }
 

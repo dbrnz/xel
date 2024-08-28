@@ -1,7 +1,7 @@
 
 /*
  * @copyright
- *   © 2016-2023 Jarosław Foksa
+ *   © 2016-2024 Jarosław Foksa
  * @license
  *   Xel Cupertino License v1 (check LICENSE.md for details)
  * @doc
@@ -461,10 +461,10 @@ x-button[skin="recessed"] > x-label {
 
 x-button[skin="nav"] {
   color: var(--text-color);
-  cursor: default;
+  border-radius: 7px;
 }
 x-button[skin="nav"][toggled] {
-  background: rgba(0, 0, 0, 0.14);
+  background: rgba(0, 0, 0, 0.08);
 }
 x-button[skin="nav"][pressed] {
   background: rgba(0, 0, 0, 0.2);

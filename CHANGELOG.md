@@ -1,6 +1,120 @@
 
 # CHANGELOG
 
+## 0.28.8 (2024-08-23)
+
+- [Bugfix] `<x-checkbox>` fails to update on WebKit in some edge cases
+
+## 0.28.7 (2024-08-15)
+
+- Allow `<x-tooltip>` to be placed inside `<x-checkbox>`
+
+## 0.28.6 (2024-07-29)
+
+- [Bugfix] Incorrect cursor position after changing `<x-texteditor>` value
+
+## 0.28.5 (2024-06-30)
+
+- [Bugfix] Disabled `<x-numberinput>` is still editable
+
+## 0.28.4 (2024-06-25)
+
+- [Bugfix] `<x-throbber>` animation freezes when changing the "hidden" attribute
+- [Bugfix] Backspace, arrow up and arrow down keyboard events should not be propagated when `<x-colorinput>` is focused
+
+## 0.28.3 (2024-06-23)
+
+- Handle `<x-menuitem>` click event like native Windows and GNOME apps
+- Automatically select `<x-colorinput>` contents when it receives focus
+- [Bugfix] Can't change `<x-colorinput>` value when only a single color space is allowed
+- [Bugfix] `<x-numberinput>` does not properly discard invalid values
+
+## 0.28.2 (2024-06-22)
+
+- [Bugfix] Incorrect z-index of button tooltips when using dark Fluent theme
+
+## 0.28.1 (2024-06-22)
+
+- [Bugfix] Incorrect z-index of button tooltips when using Fluent theme
+
+## 0.28.0 (2024-06-21)
+
+- Add "expand" and "collapse" events to `<x-menubar>`
+
+## 0.27.1 (2024-05-30)
+
+- Make inner padding of `<x-numberinput>` configurable
+
+## 0.27.0 (2024-05-21)
+
+- API change: Rename `<meta name="xel-iconsets">` to `<meta name="xel-icons">`
+- API change: Rename `Xel.iconsets` to `Xel.icons`
+- API change: Rename `Xel.whenIconsetsReady` to `Xel.whenIconsReady`
+- API change: rename `iconsetschange` event to `iconschange`
+- [Bugfix] `<x-contextmenu>` fails to render on WebKit in some edge cases
+
+## 0.26.0 (2024-05-19)
+
+- Add "sRGB Linear", "CIE LCH", "OK LCH", "CIE LAB", "OK LAB", "CIE XYZ D65" and "CIE XYZ D50" color spaces to the
+  color picker
+- Add "Out of gamut" indicator to the color space select widget
+- Add color picker option to show gamut hints
+- Add color picker option to show channel labels
+
+## 0.25.11 (2024-04-01)
+
+- [Bugfix] "toggle" event on `<x-radios>` is not documented
+
+## 0.25.10 (2024-03-27)
+
+- [Bugfix] Language parameter in blob URLs is ignored
+
+## 0.25.9 (2024-03-25)
+
+- [Bugfix] Can't pass full URLs as `<x-message>` arguments
+
+## 0.25.8 (2024-03-16)
+
+- [Bugfix] Don't show text selection inside blurred `<x-numberinput>`
+
+## 0.25.7 (2024-03-09)
+
+- [Bugfix] Can't close modal popovers on WebKit
+
+## 0.25.6 (2024-03-05)
+
+- [Bugfix] Error thrown when unfocusing text inputs on WebKit
+
+## 0.25.5 (2024-02-20)
+
+- [Bugfix] Color picker throws errors when clearing localStorage
+
+## 0.25.4 (2024-01-17)
+
+- [Bugfix] Button tooltips have incorrect font weight
+
+## 0.25.3 (2024-01-14)
+
+- [Bugfix] Wrong cursor image when hovering a tag inside an anchor
+
+## 0.25.2 (2024-01-11)
+
+- [Bugfix] Color input widget uses inconsistent value format in sRGB space
+
+## 0.25.1 (2024-01-08)
+
+- [Bugfix] `<x-tabs>` are flickering when clicked
+- [Bugfix] Can't disable `<x-tab>`
+
+## 0.25.0 (2023-12-31)
+
+- Add option to expand/collapse `<x-accordion>` without animations
+- Add `disabled` property to `<x-accordion>`
+
+## 0.24.5 (2023-12-26)
+
+- [Bugfix] `<x-buttons>` element does not handle correctly child `<a>` elements
+
 ## 0.24.4 (2023-12-12)
 
 - [Bugfix] `<x-input type="search">` is not dispatching `change` event on latest versions of WebKit-based browsers

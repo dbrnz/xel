@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -22,7 +22,7 @@ export default class PTCodeElement extends HTMLElement {
       width: 100%;
       box-sizing: border-box;
       background: white;
-      padding: 14px;
+      padding: 8px;
     }
 
     ::selection {
@@ -36,8 +36,10 @@ export default class PTCodeElement extends HTMLElement {
       overflow-x: auto;
       font-size: 13px;
       line-height: 18px;
-      outline: none;
       background: none;
+      border: none;
+      outline: none;
+      margin: 0;
       padding: 0;
     }
 

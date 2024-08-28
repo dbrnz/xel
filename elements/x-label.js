@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -14,7 +14,7 @@ export default class XLabelElement extends HTMLElement {
     :host {
       display: block;
       line-height: 1.2;
-      cursor: default;
+      cursor: inherit;
       user-select: none;
       -webkit-user-select: none;
       box-sizing: border-box;

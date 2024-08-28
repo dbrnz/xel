@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -122,4 +122,21 @@ export let comparePoints = (point1, point2, precision = null) => {
   else {
     return point1.x === point2.x && point1.y === point2.y;
   }
+};
+
+// @type (DOMPoint, DOMPoint, number) => DOMPoint
+//
+// Rotate the given point clockwise around the center point by given angle in degrees.
+export let rotatePoint = (point, centerPoint, angle) => {
+  let [x, y] = [point.x, point.y];
+  let [cx, cy] = [centerPoint.x, centerPoint.y];
+
+  let angleRad = (Math.PI / 180) * angle;
+  let cosRad = Math.cos(angleRad);
+  let sinRad = Math.sin(angleRad);
+
+  return new DOMPoint(
+    (cosRad * (x - cx)) - (sinRad * (y - cy)) + cx,
+    (cosRad * (y - cy)) + (sinRad * (x - cx)) + cy
+  );
 };

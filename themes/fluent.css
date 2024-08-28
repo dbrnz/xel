@@ -1,7 +1,7 @@
 
 /*
  * @copyright
- *   © 2016-2023 Jarosław Foksa
+ *   © 2016-2024 Jarosław Foksa
  * @license
  *   MIT License (check LICENSE.md for details)
  * @doc
@@ -397,10 +397,6 @@ x-button[skin="dock"]:focus {
   outline-offset: -2px;
 }
 
-x-button[skin="dock"]:hover {
-  z-index: 2;
-}
-
 /*****************************************************************************************************************/
 
 /**
@@ -472,7 +468,6 @@ x-button[skin="recessed"] > x-label {
 
 x-button[skin="nav"] {
   color: var(--text-color);
-  cursor: default;
 }
 x-button[skin="nav"]:focus {
   outline-offset: -2px;

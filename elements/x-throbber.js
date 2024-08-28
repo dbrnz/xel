@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -147,6 +147,7 @@ export default class XThrobberElement extends HTMLElement {
   }
 
   #shadowRoot = null;
+  #intersectionObserver = null;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -155,10 +156,16 @@ export default class XThrobberElement extends HTMLElement {
 
     this.#shadowRoot = this.attachShadow({mode: "closed"});
     this.#shadowRoot.adoptedStyleSheets = [XThrobberElement.#shadowStyleSheet];
+    this.#intersectionObserver = new IntersectionObserver(entries => this.#update());
   }
 
   connectedCallback() {
     this.#update();
+    this.#intersectionObserver.observe(this);
+  }
+
+  disconnectedCallback() {
+    this.#intersectionObserver.unobserve(this);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -173,18 +180,23 @@ export default class XThrobberElement extends HTMLElement {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   #update() {
-    let svg = this.#shadowRoot.firstElementChild;
-    let template = (this.type === "ring") ? XThrobberElement.#ringTemplate : XThrobberElement.#spinTemplate;
-
-    if (svg === null) {
-      this.#shadowRoot.append(document.importNode(template.content, true));
+    if (this.hidden || (this.checkVisibility && this.checkVisibility() === false)) {
+      this.#shadowRoot.innerHTML = "";
     }
-    else if (svg.dataset.type !== this.type) {
-      svg.replaceWith(document.importNode(template.content, true));
-    }
+    else {
+      let svg = this.#shadowRoot.firstElementChild;
+      let template = (this.type === "ring") ? XThrobberElement.#ringTemplate : XThrobberElement.#spinTemplate;
 
-    if (this.hasAttribute("type") === false) {
-      this.setAttribute("type", this.type);
+      if (svg === null) {
+        this.#shadowRoot.append(document.importNode(template.content, true));
+      }
+      else if (svg.dataset.type !== this.type) {
+        svg.replaceWith(document.importNode(template.content, true));
+      }
+
+      if (this.hasAttribute("type") === false) {
+        this.setAttribute("type", this.type);
+      }
     }
   }
 }

@@ -1,12 +1,13 @@
 
 // @copyright
-//   © 2016-2023 Jarosław Foksa
+//   © 2016-2024 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
 import Xel from "../classes/xel.js";
 
 import {createElement, closest, isPointerInsideElement} from "../utils/element.js";
+import {getBrowserEngine} from "../utils/system.js";
 import {html, css} from "../utils/template.js";
 import {sleep} from "../utils/time.js";
 
@@ -213,7 +214,7 @@ export default class XButtonElement extends HTMLElement {
       if (this.parentElement.localName === "x-buttons") {
         return this.parentElement;
       }
-      else if (this.parentElement.localName === "x-box" && this.parentElement.parentElement) {
+      else if (["a", "x-box"].includes(this.parentElement.localName) && this.parentElement.parentElement) {
         if (this.parentElement.parentElement.localName === "x-buttons") {
           return this.parentElement.parentElement;
         }
@@ -225,6 +226,7 @@ export default class XButtonElement extends HTMLElement {
 
   #shadowRoot = null;
   #wasFocusedBeforeExpanding = false;
+  #dismissTooltip = false;
   #lastPointerDownEvent = null;
   #lastTabIndex = 0;
 
@@ -354,13 +356,15 @@ export default class XButtonElement extends HTMLElement {
         menu.setAttribute("closing", "");
 
         await delay;
-        await menu.close();
+        menu.close();
 
         this["#backdrop"].hide(false);
         this.removeAttribute("expanded");
 
         // @bugfix: Button gets stuck with :hover state after user clicks the backdrop.
-        this.replaceWith(this);
+        if (getBrowserEngine() === "chromium") {
+          this.replaceWith(this);
+        }
 
         if (this.#wasFocusedBeforeExpanding) {
           this.focus();
@@ -443,8 +447,8 @@ export default class XButtonElement extends HTMLElement {
 
         this.removeAttribute("expanded");
 
-        // @bugfix: Button gets stuck with :hover state after user clicks the backdrop of a modal popover.
-        if (popover.modal) {
+        // @bugfix: Button gets stuck with :hover state after user clicks the backdrop.
+        if (popover.modal && getBrowserEngine() === "chromium") {
           this.replaceWith(this);
         }
 
@@ -609,8 +613,6 @@ export default class XButtonElement extends HTMLElement {
     }
   }
 
-  #dismissTooltip = false;
-
   #onClose(event) {
     if (
       event.target.parentElement === this &&
@@ -720,6 +722,7 @@ export default class XButtonElement extends HTMLElement {
             ancestorFocusableElement.focus();
           }
           else {
+            this.focus(); // Need when e.g. a color input widget was focused
             this.blur();
           }
         });
