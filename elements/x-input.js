@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -25,10 +25,10 @@ export default class XInputElement extends HTMLElement {
 
   static #shadowTemplate = html`
     <template>
-      <main id="main">
+      <div id="main">
         <slot></slot>
         <input id="input" spellcheck="false" part="input"></input>
-      </main>
+      </div>
     </template>
   `;
 
@@ -39,7 +39,6 @@ export default class XInputElement extends HTMLElement {
       max-width: 160px;
       height: 32px;
       box-sizing: border-box;
-      background: white;
       font-size: 12.5px;
     }
     :host(:focus) {
@@ -63,10 +62,6 @@ export default class XInputElement extends HTMLElement {
       color: var(--selection-color);
       background-color: var(--selection-background-color);
     }
-    :host([error]) ::selection {
-      color: white;
-      background-color: #d50000;
-    }
 
     #main {
       display: flex;
@@ -89,6 +84,7 @@ export default class XInputElement extends HTMLElement {
       font-weight: inherit;
       text-align: inherit;
       cursor: inherit;
+      z-index: 1;
     }
     #input:-webkit-autofill {
       /* Hide the placeholder text when the input is autofilled */
@@ -104,7 +100,7 @@ export default class XInputElement extends HTMLElement {
       color: inherit;
       background: transparent;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -120,8 +116,9 @@ export default class XInputElement extends HTMLElement {
   }
 
   // @property
-  // @attribute partial
+  // @attribute
   // @type string
+  // @partial
   // @default ""
   get value() {
     return this["#input"].value;
@@ -319,8 +316,11 @@ export default class XInputElement extends HTMLElement {
     }
   }
 
-  attributeChangedCallback(name) {
-    if (name === "type") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "type") {
       this.#onTypeAttributeChange();
     }
     else if (name === "value") {

@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -8,7 +8,7 @@ import DOMPurify from "../node_modules/dompurify/dist/purify.es.mjs";
 import EventEmitter from "./event-emitter.js";
 
 import {compareArrays} from "../utils/array.js";
-import {convertColor, parseColor, serializeColor} from "../utils/color.js";
+import {getMaterialCSSColorVariables, isValidColorString} from "../utils/color.js"
 import {getIcons} from "../utils/icon.js";
 import {FluentBundle, FluentResource, FluentNumber, FluentNone} from "../node_modules/@fluent/bundle/esm/index.js";
 import {getOperatingSystemName} from "../utils/system.js";
@@ -158,12 +158,18 @@ export default new class Xel extends EventEmitter {
     let colors = {};
 
     for (let rule of this.#themeStyleSheet.cssRules) {
-      if (rule.type === 1 && rule.selectorText === "body") {
+      if (rule.type === 1 && rule.selectorText === ":root") {
         let unparsedValue = rule.style.getPropertyValue("--preset-accent-colors");
 
         if (unparsedValue !== "") {
-          let entries = unparsedValue.split(",").map($0 => $0.trim()).map($0 => $0.split(" "));
-          colors = Object.fromEntries(entries);
+          let entries = unparsedValue.split(",").map($0 => $0.trim());
+
+          for (let entry of entries) {
+            let displayName = entry.substring(0, entry.indexOf(" "));
+            let value = entry.substring(entry.indexOf(" ") + 1).trim();
+            colors[displayName] = value;
+          }
+
           break;
         }
       }
@@ -226,6 +232,16 @@ export default new class Xel extends EventEmitter {
     if (message) {
       if (attribute === null) {
         if (message.value) {
+          if (Array.isArray(message.value)) {
+            for (let part of message.value) {
+              if (part.type === "select") {
+                if (args[part.selector.name] === undefined) {
+                  args[part.selector.name] = "unknown";
+                }
+              }
+            }
+          }
+
           content = this.#localesBundle.formatPattern(message.value, args);
         }
       }
@@ -536,7 +552,8 @@ export default new class Xel extends EventEmitter {
 
   #updateAutocapitlizeProperty() {
     if (this.#localesBundle?.locales[0]?.startsWith("en")) {
-      this.#autocapitalize = getComputedStyle(document.body).getPropertyValue("--autocapitalize").trim() || "none";
+      let computedStyle = getComputedStyle(document.documentElement);
+      this.#autocapitalize = computedStyle.getPropertyValue("--autocapitalize").trim() || "none";
     }
     else {
       this.#autocapitalize = "none";
@@ -547,7 +564,8 @@ export default new class Xel extends EventEmitter {
     await this.whenThemeReady;
 
     let meta = document.head.querySelector(`meta[name="theme-color"]`);
-    let titlebarColor = getComputedStyle(document.body).getPropertyValue("--titlebar-color").trim() || "auto";
+    let computedStyle = getComputedStyle(document.documentElement);
+    let titlebarColor = computedStyle.getPropertyValue("--titlebar-color").trim() || "auto";
 
     if (titlebarColor === "auto") {
       if (meta) {
@@ -573,19 +591,17 @@ export default new class Xel extends EventEmitter {
       serializedColor = this.presetAccentColors[serializedColor];
     }
 
-    let color = convertColor(parseColor(serializedColor), "hsl");
-    let [h, s, l] = color.coords;
-    let rule = [...this.#themeStyleSheet.cssRules].reverse().find($0 => $0.type === 1 && $0.selectorText === "body");
+    let rule = [...this.#themeStyleSheet.cssRules].reverse().find($0 => $0.type === 1 && $0.selectorText === ":root");
+    rule.style.setProperty("--accent-color", serializedColor);
 
-    // @bugfix: https://github.com/LeaVerou/color.js/issues/328
-    if (Number.isNaN(h)) {
-      h = 0;
+    // Set "--material-<colorName>" CSS properties on <body> element
+    if (this.theme.includes("material")) {
+      let materialColors = getMaterialCSSColorVariables(serializedColor, this.theme.endsWith("-dark.css"));
+
+      for (let [propertyName, value] of Object.entries(materialColors)) {
+        rule.style.setProperty(propertyName, value);
+      }
     }
-
-    rule.style.setProperty("--accent-color-h", h);
-    rule.style.setProperty("--accent-color-s", `${s}%`);
-    rule.style.setProperty("--accent-color-l", `${l}%`);
-    rule.style.setProperty("--accent-color-a", color.alpha);
   }
 
   #getSettings() {
@@ -605,12 +621,30 @@ export default new class Xel extends EventEmitter {
       }
     }
 
-    return {
-      theme       : (themeMeta       && themeMeta.content       !== "") ? themeMeta.content       : null,
-      accentColor : (accentColorMeta && accentColorMeta.content !== "") ? accentColorMeta.content : null,
-      icons       : iconsMeta   ? iconsMeta.content.split(",").map(l => l.trim()).filter(l => l !== "") : [],
-      locales     : localesMeta ? localesMeta.content.split(",").map(l => l.trim()).filter(l => l !== "") : []
-    };
+    let theme = null;
+    let accentColor = null;
+    let icons = [];
+    let locales = [];
+
+    if (themeMeta && themeMeta.content !== "") {
+      theme = themeMeta.content;
+    }
+    if (accentColorMeta && accentColorMeta.content !== "") {
+      if (isValidColorString(accentColorMeta.content)) {
+        accentColor = accentColorMeta.content;
+      }
+      else {
+        accentColor = "#000";
+      }
+    }
+    if (iconsMeta) {
+      icons = iconsMeta.content.split(",").map(l => l.trim()).filter(l => l !== "");
+    }
+    if (localesMeta) {
+      locales = localesMeta.content.split(",").map(l => l.trim()).filter(l => l !== "");
+    }
+
+    return {theme, accentColor, icons, locales};
   }
 
   #getThemeImportRules(themeText) {

@@ -1,7 +1,7 @@
 
 /*
  * @copyright
- *   © 2016-2024 Jarosław Foksa
+ *   © 2016-2025 Jarosław Foksa
  * @license
  *   MIT License (check LICENSE.md for details)
  */
@@ -9,13 +9,17 @@
 /*****************************************************************************************************************/
 
 /**
- * Wrappers
+ * HTML elements
  */
 
-html {
+:root {
   width: 100%;
   height: 100%;
   margin: 0;
+  interpolate-size: allow-keywords;
+  font-size: 16px;
+  font-family: sans-serif;
+  line-height: 1.6;
 }
 
 body {
@@ -23,132 +27,97 @@ body {
   height: 100%;
   margin: 0;
   overflow-y: overlay;
-  font-size: 15px;
-  line-height: 1.6;
 }
 
-/*****************************************************************************************************************/
+/* Headings */
 
-/**
- * Scrollbar
- */
-
-::-webkit-scrollbar {
-  max-width: 6px;
-  max-height: 6px;
+h1 {
+  margin: 22px 0 16px;
+  box-sizing: border-box;
+  line-height: 1;
+  font-size: 52px;
+  font-weight: 700;
 }
-
-/* Corner */
-::-webkit-scrollbar-corner {
-  display: none
-}
-
-/*****************************************************************************************************************/
-
-/**
- * Headings
- */
 
 h2 {
-  margin: 18px 0;
+  margin: 18px 0 14px 0;
   box-sizing: border-box;
-  line-height: 1.1;
-  font-size: 26px;
-  font-weight: 500;
-}
-h2[disabled] {
-  opacity: 0.5;
+  line-height: 1;
+  font-size: 34px;
+  font-weight: 700;
 }
 
 h3 {
-  margin: 10px 0;
+  margin: 16px 0 12px 0;
   box-sizing: border-box;
   line-height: 1.2;
-  font-size: 16px;
+  font-size: 28px;
   font-weight: 700;
-}
-h3[disabled] {
-  opacity: 0.5;
 }
 
 h4 {
-  margin: 6px 0;
+  margin: 14px 0 10px 0;
   box-sizing: border-box;
   line-height: 1.1;
-  font-size: 12px;
+  font-size: 24px;
   font-weight: 700;
-}
-h4[disabled] {
-  opacity: 0.5;
 }
 
 h5 {
-  margin: 5px 0;
+  margin: 12px 0 8px 0;
   box-sizing: border-box;
   line-height: 1.1;
-  font-size: 11px;
-  font-weight: 500;
-}
-h5[disabled] {
-  opacity: 0.5;
+  font-size: 20px;
+  font-weight: 700;
 }
 
-/*****************************************************************************************************************/
-
-/**
- * Article
- */
-
-article h2 {
-  margin: 35px 0 15px 0;
+h6 {
+  margin: 8px 0 5px 0;
   box-sizing: border-box;
-  font-size: 42px;
-  font-weight: 400;
   line-height: 1.1;
+  font-size: 16px;
+  font-weight: 700;
 }
 
-article h3 {
-  margin: 27px 0 18px 0;
-  box-sizing: border-box;
-  font-size: 36px;
-  font-weight: 400;
-  line-height: 1.2;
+h1 em,
+h2 em,
+h3 em,
+h4 em,
+h5 em,
+h6 em {
+  font-weight: inherit;
+}
+h1 strong,
+h2 strong,
+h3 strong,
+h4 strong,
+h5 strong,
+h6 strong {
+  font-weight: 900;
 }
 
-article h4 {
-  margin: 34px 0 18px 0;
-  box-sizing: border-box;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.1;
+/* Paragraphs */
+
+p {
+  margin: 16px 0;
 }
-
-article h5 {
-  margin: 10px 0 8px 0;
-  box-sizing: border-box;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.1;
-}
-
-/*****************************************************************************************************************/
-
-/**
- * Paragraph
- */
 
 p:last-child {
   margin-bottom: 0;
 }
 
-/*****************************************************************************************************************/
+/* Links */
 
-/**
- * Table
- */
+a {
+  font-weight: 500;
+}
+
+/* Tables */
 
 table {
   border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
 }
 
 th {
@@ -160,48 +129,50 @@ td {
   padding: 8px 14px;
 }
 
-/*****************************************************************************************************************/
-
-/**
- * Markers
- */
+/* Markers */
 
 em {
   font-weight: 500;
 }
 
-pre,
-code,
-var {
-  font-size: 14px;
+/* Code */
+
+pre, code, var {
+  font-size: 0.875rem;
   font-style: normal;
   padding: 0 4px;
 }
+pre {
+  margin: 14px 0;
+  padding: 4px 6px;
+  white-space: pre-wrap;
+  box-sizing: border-box;
+}
+pre > code {
+  display: block;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: transparent;
+  outline-width: 0px;
+  line-height: 1.3;
+}
 
-/*****************************************************************************************************************/
-
-/**
- * Separator
- */
+/* Separators */
 
 hr {
   width: 100%;
   height: 1px;
   min-height: 1px;
+  margin: 24px 0;
   box-sizing: border-box;
-  margin: 2px 0px;
   border: none;
 }
 
-/*****************************************************************************************************************/
-
-/**
- * Blockquote
- */
+/* Blockquotes */
 
 blockquote {
   box-sizing: border-box;
-  margin: 14px 0;
+  margin: 16px 0;
   padding: 5px 14px;
   border-left-width: 8px;
   border-left-style: solid;
@@ -214,11 +185,7 @@ blockquote > p:first-child {
   margin-top: 0;
 }
 
-/*****************************************************************************************************************/
-
-/**
- * Lists
- */
+/* Lists */
 
 ul,
 ol {
@@ -246,7 +213,46 @@ ol li {
 }
 
 li > p {
-  margin-bottom: 0;
+  margin: 4px 0;
+}
+
+ol > li::marker {
+  font-weight: 700;
+}
+
+/* Images */
+
+img {
+  display: block;
+  height: auto;
+  margin: 14px auto;
+  max-width: 100%;
+  user-select: none;
+  box-sizing: border-box;
+  background: var(--checkboard-background);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--border-color);
+  -webkit-user-select: none;
+  -webkit-user-modify: read-only;
+}
+img:active {
+  cursor: -webkit-grabbing;
+}
+
+/*****************************************************************************************************************/
+
+/**
+ * Scrollbar
+ */
+
+::-webkit-scrollbar {
+  max-width: 6px;
+  max-height: 6px;
+}
+
+::-webkit-scrollbar-corner {
+  display: none
 }
 
 /*****************************************************************************************************************/
@@ -259,15 +265,83 @@ x-card:not(:defined) {
   display: none;
 }
 
-/* Main */
-x-card > main {
+/* Footer */
+x-card > footer {
+  padding: 8px 16px;
+  width: calc(100% + 40px);
+  height: calc(100% + 20px);
+  margin-left: -20px;
+  margin-bottom: -16px;
   box-sizing: border-box;
-  padding: 16px 20px;
+  background: lightgrey;
+}
+x-card > footer:first-child {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+x-card > footer:last-child {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
 }
 
 /* Heading */
-x-card h3:first-child {
+x-card > h1:first-child {
   margin-top: 0;
+}
+x-card > h2:first-child {
+  margin-top: 0;
+}
+x-card > h3:first-child {
+  margin-top: 0;
+}
+x-card > h4:first-child {
+  margin-top: 0;
+}
+x-card > h5:first-child {
+  margin-top: 0;
+}
+x-card > h6:first-child {
+  margin-top: 0;
+}
+
+/*****************************************************************************************************************/
+
+/**
+ * Avatar
+ */
+
+x-avatar[size="small"] {
+  width: 28px;
+  height: 28px;
+}
+x-avatar[size="large"] {
+  width: 54px;
+  height: 54px;
+}
+
+/* Image */
+x-avatar > img {
+  width: 100%;
+  height: 100%;
+  -webkit-user-drag: none;
+}
+
+/* Placeholder icon */
+x-avatar > x-icon {
+  width: 55%;
+  height: 55%;
+}
+
+/* Placeholder text */
+x-avatar > x-label {
+  font-size: 16px;
+  pointer-events: none;
+}
+x-avatar[size="small"] > x-label {
+  font-size: 12px;
+}
+x-avatar[size="large"] > x-label {
+  font-size: 24px;
 }
 
 /*****************************************************************************************************************/
@@ -313,12 +387,9 @@ x-accordion > header > *:not(:last-child) {
   margin-right: 20px;
 }
 
-/* Main */
-x-accordion > main {
-  padding: 4px 0 8px 0;
-}
-x-accordion:not([expanded]):not([animating]) > main {
-  display: none;
+/* Content */
+x-accordion:not([expanded]):not([animating]) > *:not(header) {
+  display: none !important;
 }
 
 /*****************************************************************************************************************/
@@ -345,9 +416,6 @@ x-icon:not(:defined) {
  * Label
  */
 
-x-label {
-  font-size: 13px;
-}
 x-label:not(:defined) {
   display: none;
 }
@@ -404,6 +472,12 @@ x-button {
     --min-pressed-time: 600ms;
   }
 }
+a:has(x-button) {
+  text-decoration: none;
+}
+x-button[toggled] {
+  z-index: 1;
+}
 x-button[condensed] {
   padding: 2px 7px;
 }
@@ -436,6 +510,26 @@ x-button > x-icon ~ x-label {
   margin: 0 0 0 6px;
 }
 
+/* Menu */
+x-button > x-menu {
+  font-size: 0.875rem;
+}
+
+/*****************************************************************************************************************/
+
+/**
+ * Button ("normal" skin)
+ */
+
+x-button[skin="normal"][size="small"] > x-icon {
+  width: 14px;
+  height: 14px;
+}
+x-button[skin="normal"][size="large"] > x-icon {
+  width: 20px;
+  height: 20px;
+}
+
 /*****************************************************************************************************************/
 
 /**
@@ -458,15 +552,6 @@ x-buttons[vertical] > x-button[skin="flat"][size="small"]:not(:first-of-type) {
   margin-top: 5px;
 }
 
-/* Arrow */
-x-button[skin="flat"]::part(arrow) {
-  width: 10px;
-  height: 10px;
-}
-x-button[skin="^flat"]::part(arrow) {
-  margin: 0 0 0 2px;
-}
-
 /* Icon */
 x-button[skin="flat"] > x-icon {
   width: 26px;
@@ -477,8 +562,8 @@ x-button[skin="flat"][size="small"] > x-icon {
   height: 22px;
 }
 x-button[skin="flat"][size="large"] > x-icon {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
 }
 
 /*****************************************************************************************************************/
@@ -492,49 +577,34 @@ x-button[skin="recessed"] {
   padding: 4px 8px;
 }
 x-button[skin="recessed"][size="small"] {
-  padding: 2px 8px;
+  padding: 3px 8px;
 }
 x-button[skin="recessed"][size="large"] {
-  padding: 6px 8px;
+  padding: 5px 8px;
 }
 
-/*****************************************************************************************************************/
+/* Horizontal siblings */
+x-buttons:not([vertical]) > x-button[skin="recessed"] + x-button[skin="recessed"] {
+  margin-left: 4px;
+}
 
-/**
- * Button ("nav" skin)
- */
-
-x-button[skin="nav"] {
-  padding: 8px 15px;
+/* Vertical siblings */
+x-buttons[vertical] > x-button[skin="recessed"] + x-button[skin="recessed"] {
+  margin-top: 4px;
 }
 
 /* Icon */
-x-button[skin="nav"] > x-icon {
+x-button[skin="recessed"] > x-icon {
+  width: 16px;
+  height: 16px;
+}
+x-button[skin="recessed"][size="small"] > x-icon {
+  width: 12px;
+  height: 12px;
+}
+x-button[skin="recessed"][size="large"] > x-icon {
   width: 20px;
   height: 20px;
-  margin-right: 10px;
-}
-x-button[skin="nav"][size="small"] > x-icon {
-  width: 18px;
-  height: 18px;
-  margin-right: 8px;
-}
-x-button[skin="nav"][size="large"] > x-icon {
-  width: 26px;
-  height: 26px;
-  margin-right: 12px;
-}
-
-/* Label */
-x-button[skin="nav"] > x-label {
-  flex: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-weight: 500;
-  font-size: 15px;
-  text-align: start;
-  max-width: 100%;
 }
 
 /*****************************************************************************************************************/
@@ -574,41 +644,18 @@ x-buttons[vertical] > x-button[skin="dock"] + x-button[skin="dock"] {
   margin-top: -1px;
 }
 
-/*****************************************************************************************************************/
-
-/**
- * Button ("circular" skin)
- */
-
-x-button[skin="circular"] {
-  width: 32px;
-  height: 32px;
-  min-height: 32px;
-  padding: 0;
-}
-x-button[skin="circular"][size="small"] {
-  width: 24px;
-  height: 24px;
-  min-height: 24px;
-}
-x-button[skin="circular"][size="large"] {
-  width: 38px;
-  height: 38px;
-  min-height: 38px;
-}
-
 /* Icon */
-x-button[skin="circular"] > x-icon {
-  width: 18px;
-  height: 18px;
+x-button[skin="dock"] > x-icon {
+  width: 17px;
+  height: 17px;
 }
-x-button[skin="circular"][size="small"] > x-icon {
+x-button[skin="dock"][size="small"] > x-icon {
   width: 14px;
   height: 14px;
 }
-x-button[skin="circular"][size="large"] > x-icon {
-  width: 22px;
-  height: 22px;
+x-button[skin="dock"][size="large"] > x-icon {
+  width: 20px;
+  height: 20px;
 }
 
 /*****************************************************************************************************************/
@@ -633,7 +680,7 @@ x-buttons:not(:defined) {
  */
 
 x-tag[size="small"] {
-  height: 20px;
+  height: 18px;
 }
 x-tag[size="large"] {
   height: 30px;
@@ -663,6 +710,15 @@ x-tag > x-label {
 x-tag :not(x-label) + x-label {
   margin-left: 4px;
 }
+x-tag[size="small"] > x-label {
+  font-size: 11px;
+}
+
+/* Icon */
+x-tag > x-icon {
+  width: 15px;
+  height: 15px;
+}
 
 /*****************************************************************************************************************/
 
@@ -690,30 +746,22 @@ x-tags x-tag {
  */
 
 x-tagsinput[size="small"] {
-  min-height: 24px;
+  padding: 0px;
+  gap: 0px;
+}
+x-tagsinput[size="small"] > x-tag {
+  height: 22px;
+  transform: scale(0.92);
 }
 x-tagsinput[size="large"] {
-  min-height: 34px;
+  padding: 6px;
+  gap: 6px;
 }
 x-tagsinput:focus-within {
   z-index: 10;
 }
-x-tagsinput[size="small"]::part(input) {
-  height: 20px;
-  line-height: 20px;
-}
-x-tagsinput[size="large"]::part(input) {
-  height: 30px;
-  line-height: 30px;
-}
 x-tagsinput:not(:defined) {
   display: none;
-}
-
-/* Tag */
-x-tagsinput > x-tag {
-  margin: 2px;
-  cursor: default;
 }
 
 /* Placeholder */
@@ -779,6 +827,9 @@ x-tab x-label {
 x-tab x-icon + x-label {
   margin-left: 6px;
 }
+x-tab x-box:is([vertical]) x-icon + x-label {
+  margin-left: 0px;
+}
 
 /*****************************************************************************************************************/
 
@@ -802,6 +853,14 @@ x-menu:not(:defined) {
 x-menu:has(x-menu[opened]) {
   /* @bugfix: Menu fails to render if its ancestor is scrollable (https://bugs.webkit.org/show_bug.cgi?id=160953) */
   overflow: -webkit-paged-x;
+}
+
+/* Image */
+
+x-menu img {
+  margin: 0;
+  background: none;
+  border: none;
 }
 
 /* Separator */
@@ -893,6 +952,81 @@ x-menubar > x-menuitem {
 /*****************************************************************************************************************/
 
 /**
+ * Nav
+ */
+
+x-navitem + x-navitem,
+a:has(x-navitem) + a:has(x-navitem),
+a:has(x-navitem) + x-navitem,
+x-navitem + a:has(x-navitem) {
+  margin: 3px 0;
+}
+x-nav x-nav > *:first-child {
+  margin-top: 3px;
+}
+x-nav x-nav > *:last-child {
+  margin-bottom: 0;
+}
+x-nav x-nav > * {
+  margin-left: 34px !important;
+}
+x-nav x-nav > * {
+  max-width: calc(100% - 34px) !important;
+}
+
+/* Link */
+x-nav > a {
+  display: block;
+  text-decoration: none;
+}
+
+/* Label */
+x-nav x-label {
+  max-width: 100%;
+  flex: 1 1 0%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  font-size: 15px;
+  text-align: start;
+}
+x-nav x-icon + x-label {
+  margin-left: 14px;
+}
+x-nav[collapsed] x-navitem > x-label {
+  display: none;
+}
+
+/* Primary icon */
+x-nav x-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Secondary icon */
+x-nav x-label + x-icon {
+  width: 18px;
+  height: 18px;
+  margin: 0 0 0 10px;
+}
+x-nav[collapsed] x-navitem > x-label + x-icon {
+  display: none;
+}
+
+/* Button */
+x-nav[collapsed] x-navitem::part(button) {
+  padding: 0;
+}
+
+/* Arrow */
+x-nav[collapsed] x-navitem::part(arrow) {
+  display: none;
+}
+
+/*****************************************************************************************************************/
+
+/**
  * Context menu
  */
 
@@ -907,13 +1041,16 @@ x-contextmenu:not(:defined) {
  */
 
 dialog {
+  overflow: hidden;
   position: fixed;
   min-width: 200px;
   min-height: 100px;
   max-height: none;
-  margin: 0 auto;
-  padding: 0;
+  margin: auto;
+  padding: 20px 24px;
   box-sizing: border-box;
+  font-size: 13px;
+  line-height: 1.6;
 }
 dialog:focus {
   outline: none;
@@ -922,32 +1059,42 @@ dialog:not(:defined) {
   display: none;
 }
 
-/* Main */
-dialog > main {
-  padding: 20px 24px 0px;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
 /* Footer */
 dialog > footer {
-  padding: 12px;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
-  margin-top: auto;
+  padding: 12px 24px;
+  width: calc(100% + 48px);
+  height: calc(100% + 22px);
+  margin-top: 10px;
+  margin-left: -24px;
+  margin-bottom: -20px;
+  box-sizing: border-box;
+  background: lightgrey;
+}
+dialog > footer:first-child {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+dialog > footer:last-child {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
 }
 
 /* Footer button */
-dialog > footer x-button {
+dialog > footer x-button + x-button {
   margin-left: 8px;
 }
 
 /* Heading */
 dialog h3 {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
-  margin: 0;
+}
+
+dialog > *:first-child {
+  margin-top: 0;
 }
 
 /*****************************************************************************************************************/
@@ -956,15 +1103,35 @@ dialog h3 {
  * Popover
  */
 
+x-popover {
+  padding: 12px;
+  overflow: auto;
+}
+x-popover:has(footer) {
+  overflow: hidden;
+}
 x-popover:not(:defined) {
   display: none;
 }
 
-/* Main */
-x-popover > main {
-  width: 100%;
+/* Footer */
+x-popover > footer {
   padding: 12px;
-  overflow: auto;
+  width: calc(100% + 24px);
+  height: calc(100% + 12px);
+  margin-left: -12px;
+  margin-bottom: -12px;
+  margin-top: 12px;
+  box-sizing: border-box;
+  background: lightgrey;
+}
+x-popover > footer:first-child {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+x-popover > footer:last-child {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
 }
 
 /*****************************************************************************************************************/
@@ -1158,6 +1325,12 @@ x-input > x-icon {
   min-width: 15px;
   margin: 0 0 0 8px;
 }
+x-input[size="small"] > x-icon {
+  transform: scale(0.8);
+}
+x-input[size="large"] > x-icon {
+  transform: scale(1.1);
+}
 x-input > x-icon:hover {
   cursor: default;
 }
@@ -1182,15 +1355,7 @@ x-input[empty] > x-label {
   display: block;
 }
 x-input > x-icon + x-label {
-  padding: 0 5px 0 32px;
-}
-
-/* Error message */
-x-input[size="small"][error]::before {
-  top: 27px;
-}
-x-input[size="large"][error]::before {
-  top: 41px;
+  padding: 0 5px 0 29px;
 }
 
 /*****************************************************************************************************************/
@@ -1213,14 +1378,6 @@ x-numberinput:focus {
 }
 x-numberinput:not(:defined) {
   display: none;
-}
-
-/* Stepper */
-x-numberinput > x-stepper {
-  margin-right: -20px;
-  margin-left: 5px;
-  margin-top: -1px;
-  height: calc(100% + 2px);
 }
 
 /* Placeholder */
@@ -1287,35 +1444,8 @@ x-texteditor[empty] > x-label {
  * Slider
  */
 
-x-slider[size="small"]::part(thumb) {
-  width: 17px;
-  height: 17px;
-}
-x-slider[size="large"]::part(thumb) {
-  width: 23px;
-  height: 23px;
-}
 x-slider:not(:defined) {
   display: none;
-}
-
-/* Track */
-x-slider:not([vertical])[size="small"]::part(track) {
-  height: 2px;
-}
-x-slider[vertical][size="small"]::part(track) {
-  width: 2px;
-}
-x-slider:not([vertical])[size="large"]::part(track) {
-  height: 6px;
-}
-x-slider[vertical][size="large"]::part(track) {
-  width: 6px;
-}
-
-/* Label */
-x-slider > x-label {
-  font-size: 11px;
 }
 
 /*****************************************************************************************************************/
@@ -1360,4 +1490,14 @@ x-throbber[size="large"] {
 }
 x-throbber:not(:defined) {
   display: none;
+}
+
+/*****************************************************************************************************************/
+
+/**
+ * Titlebar
+ */
+
+x-titlebar x-icon + x-label {
+  margin-left: 6px;
 }

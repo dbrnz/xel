@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -13,9 +13,9 @@ import {sleep} from "../utils/time.js";
 let {max} = Math;
 
 // @element x-tab
-// @part selection-indicator - Horizontal line indicating that the tab is selected.
+// @part selection-indicator - Horizontal line indicating that the tab is toggled.
 export default class XTabElement extends HTMLElement {
-  static observedAttributes = ["selected", "disabled"];
+  static observedAttributes = ["toggled", "disabled"];
 
   static #shadowTemplate = html`
     <template>
@@ -73,10 +73,10 @@ export default class XTabElement extends HTMLElement {
       bottom: 0;
       left: 0;
     }
-    :host([selected]) #selection-indicator {
+    :host([toggled]) #selection-indicator {
       display: block;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,11 +95,11 @@ export default class XTabElement extends HTMLElement {
   // @attribute
   // @type boolean
   // @default false
-  get selected() {
-    return this.hasAttribute("selected");
+  get toggled() {
+    return this.hasAttribute("toggled");
   }
-  set selected(selected) {
-    selected ? this.setAttribute("selected", "") : this.removeAttribute("selected");
+  set toggled(toggled) {
+    toggled ? this.setAttribute("toggled", "") : this.removeAttribute("toggled");
   }
 
   // @property
@@ -147,8 +147,11 @@ export default class XTabElement extends HTMLElement {
     this.#updateAccessabilityAttributes();
   }
 
-  attributeChangedCallback(name) {
-    if (name === "selected") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "toggled") {
       this.#updateAccessabilityAttributes();
     }
     else if (name === "disabled") {
@@ -163,6 +166,9 @@ export default class XTabElement extends HTMLElement {
       if (getComputedStyle(this["#selection-indicator"]).height !== "0px") {
         let fromBBox = this.getBoundingClientRect();
         let toBBox = toTab.getBoundingClientRect();
+        let computedStyle = getComputedStyle(this["#selection-indicator"]);
+        let transitionDuration = parseFloat(computedStyle.getPropertyValue("transition-duration") || "0s") * 1000;
+        let transitionTimingFunction = computedStyle.getPropertyValue("transition-timing-function") || "linear";
 
         let animation = this["#selection-indicator"].animate(
           [
@@ -176,10 +182,10 @@ export default class XTabElement extends HTMLElement {
             }
           ],
           {
-            duration: 100,
+            duration: transitionDuration,
+            easing: transitionTimingFunction,
             iterations: 1,
-            delay: 0,
-            easing: "cubic-bezier(0.4, 0.0, 0.2, 1)"
+            delay: 0
           }
         );
 
@@ -194,9 +200,9 @@ export default class XTabElement extends HTMLElement {
 
   #updateAccessabilityAttributes() {
     this.setAttribute("role", "tab");
-    this.setAttribute("aria-selected", this.selected);
+    this.setAttribute("aria-selected", this.toggled);
     this.setAttribute("aria-disabled", this.disabled);
-    this.setAttribute("tabindex", this.selected ? "0" : "-1");
+    this.setAttribute("tabindex", this.toggled ? "0" : "-1");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,7 +236,7 @@ export default class XTabElement extends HTMLElement {
         this.removeEventListener("pointerup", pointerUpOrCancelListener);
         this.removeEventListener("pointercancel", pointerUpOrCancelListener);
 
-        if (this.selected === true) {
+        if (this.toggled === true) {
           let pressedTime = Date.now() - pointerDownTimeStamp;
           let minPressedTime = 100;
 

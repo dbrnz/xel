@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -15,17 +15,12 @@ let {max} = Math;
 
 // @element x-button
 // @event toggle - User toggled the button on or off by clicking it.
-// @part arrow - The arrow icon shown when the button contains <code>x-popover</code> or <code>x-menu</code>.
 export default class XButtonElement extends HTMLElement {
   static observedAttributes = ["disabled", "skin"];
 
   static #shadowTemplate = html`
     <template>
       <slot></slot>
-
-      <svg id="arrow" part="arrow" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path id="arrow-path"></path>
-      </svg>
     </template>
   `;
 
@@ -58,27 +53,8 @@ export default class XButtonElement extends HTMLElement {
     :host([hidden]) {
       display: none;
     }
+  `;
 
-    /**
-     * Arrow
-     */
-
-    #arrow {
-      color: currentColor;
-      width: 8px;
-      height: 8px;
-      min-width: 8px;
-      margin: 0 0 0 4px;
-      --path-data: M 11.7 19.9 L 49.8 57.9 L 87.9 19.9 L 99.7 31.6 L 49.8 81.4 L -0.0 31.6 Z;
-    }
-
-    #arrow path {
-      fill: currentColor;
-    }
-    #arrow[hidden] {
-      display: none;
-    }
-  `
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // @property
@@ -161,22 +137,22 @@ export default class XButtonElement extends HTMLElement {
 
   // @property
   // @attribute
-  // @type "flat" || "recessed" || "nav" || "dock" || "circular" || null
-  // @default null
+  // @type "normal" || "flat" || "recessed" || "dock"
+  // @default "normal"
   get skin() {
-    return this.hasAttribute("skin") ? this.getAttribute("skin") : null;
+    return this.hasAttribute("skin") ? this.getAttribute("skin") : "normal";
   }
   set skin(skin) {
-    skin === null ? this.removeAttribute("skin") : this.setAttribute("skin", skin);
+    this.setAttribute("skin", skin);
   }
 
   // @property
   // @attribute
-  // @type "small" || "large" || null
-  // @default null
+  // @type "normal" || "small" || "large"
+  // @default "normal"
   get size() {
     let size = this.getAttribute("size");
-    return (size === "small" || size === "large") ? size : null;
+    return (size === "small" || size === "large") ? size : "normal";
   }
   set size(size) {
     (size === "small" || size === "large") ? this.setAttribute("size", size) : this.removeAttribute("size");
@@ -230,8 +206,6 @@ export default class XButtonElement extends HTMLElement {
   #lastPointerDownEvent = null;
   #lastTabIndex = 0;
 
-  #xelThemeChangeListener = null;
-
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   constructor() {
@@ -265,20 +239,19 @@ export default class XButtonElement extends HTMLElement {
       this.parentElement.tabIndex = -1;
     }
 
-    this.#updateArrowPathData();
-    this.#updateArrowVisibility();
     this.#updateAccessabilityAttributes();
     this.#updateSkinAttribute();
-
-    Xel.addEventListener("themechange", this.#xelThemeChangeListener = () => this.#updateArrowPathData());
   }
 
   disconnectedCallback() {
-    Xel.removeEventListener("themechange", this.#xelThemeChangeListener);
+    this.#dismissTooltip = false;
   }
 
-  attributeChangedCallback(name) {
-    if (name === "disabled") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue || this.isConnected === false) {
+      return;
+    }
+    else if (name === "disabled") {
       this.#updateAccessabilityAttributes();
     }
     else if (name === "skin") {
@@ -523,6 +496,31 @@ export default class XButtonElement extends HTMLElement {
     return result;
   }
 
+  #openDrawer() {
+    return new Promise((resolve) => {
+      if (this.#canOpenDrawer()) {
+        let drawer = this.querySelector(":scope > x-drawer");
+        drawer.open();
+      }
+
+      resolve();
+    });
+  }
+
+  #canOpenDrawer() {
+    let result = false;
+
+    if (this.disabled === false) {
+      let drawer = this.querySelector(":scope > x-drawer");
+
+      if (drawer && drawer.matches(":popover-open") === false && drawer.hasAttribute("closing") === false) {
+        result = true;
+      }
+    }
+
+    return result;
+  }
+
   #openNotification() {
     return new Promise((resolve) => {
       if (this.#canOpenNotification()) {
@@ -550,16 +548,6 @@ export default class XButtonElement extends HTMLElement {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  #updateArrowPathData() {
-    let arrowPathData = getComputedStyle(this["#arrow"]).getPropertyValue("--path-data");
-    this["#arrow-path"].setAttribute("d", arrowPathData);
-  }
-
-  #updateArrowVisibility() {
-    let popup = this.querySelector(":scope > x-menu, :scope > x-popover");
-    this["#arrow"].style.display = (popup ? null : "none");
-  }
-
   #updateAccessabilityAttributes() {
     this.setAttribute("role", "button");
     this.setAttribute("aria-disabled", this.disabled);
@@ -579,7 +567,7 @@ export default class XButtonElement extends HTMLElement {
 
   #updateSkinAttribute() {
     if (this.hasAttribute("skin") === false) {
-      this.setAttribute("skin", "default");
+      this.setAttribute("skin", "normal");
     }
   }
 
@@ -589,6 +577,7 @@ export default class XButtonElement extends HTMLElement {
     let openedMenu = this.querySelector(":scope > x-menu[opened]");
     let openedPopover = this.querySelector(":scope > x-popover[opened]");
     let openedDialog = this.querySelector(":scope > dialog[open]");
+    let openedDrawer = this.querySelector(":scope > x-drawer[open]");
     let openedNotification = this.querySelector(":scope > x-notification[opened]");
 
     this.#lastPointerDownEvent = event;
@@ -603,6 +592,9 @@ export default class XButtonElement extends HTMLElement {
       return;
     }
     else if (openedDialog && openedDialog.contains(event.target)) {
+      return;
+    }
+    else if (openedDrawer && openedDrawer.contains(event.target)) {
       return;
     }
     else if (openedNotification && openedNotification.contains(event.target)) {
@@ -658,6 +650,7 @@ export default class XButtonElement extends HTMLElement {
     let openedMenu = this.querySelector(":scope > x-menu[opened]");
     let openedPopover = this.querySelector(":scope > x-popover[opened]");
     let openedDialog = this.querySelector(":scope > dialog[open]");
+    let openedDrawer = this.querySelector(":scope > x-drawer[open]");
     let openedNotification = this.querySelector(":scope > x-notification[opened]");
 
     if (event.target === this["#backdrop"]) {
@@ -672,6 +665,9 @@ export default class XButtonElement extends HTMLElement {
       return;
     }
     else if (openedDialog && openedDialog.contains(event.target)) {
+      return;
+    }
+    else if (openedDrawer && openedDrawer.contains(event.target)) {
       return;
     }
     else if (openedNotification && openedNotification.contains(event.target)) {
@@ -693,7 +689,7 @@ export default class XButtonElement extends HTMLElement {
       return;
     }
 
-    if (this.querySelector(":scope > dialog[open]")) {
+    if (this.querySelector(":scope > dialog[open], :scope > x-drawer[open]")) {
       pointerDownEvent.preventDefault();
       return;
     }
@@ -813,6 +809,9 @@ export default class XButtonElement extends HTMLElement {
       if (this.#canOpenDialog()) {
         this.#openDialog();
       }
+      else if (this.#canOpenDrawer()) {
+        this.#openDrawer();
+      }
       else if (this.#canOpenNotification()) {
         this.#openNotification();
       }
@@ -858,6 +857,10 @@ export default class XButtonElement extends HTMLElement {
         else if (this.#canOpenDialog()) {
           event.preventDefault();
           this.#openDialog();
+        }
+        else if (this.#canOpenDrawer()) {
+          event.preventDefault();
+          this.#openDrawer();
         }
         else if (this.#canOpenNotification()) {
           event.preventDefault();

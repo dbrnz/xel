@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -11,34 +11,40 @@ import {css} from "../utils/template.js";
 
 export default class PTChangelogPageElement extends PTPage {
   static _shadowStyleSheet = css`
-    article h3 {
+    h3 {
       margin: 0;
-      font-size: 22px;
-      font-weight: 500;
+      line-height: 1;
     }
 
-    article h4 {
+    h4 {
       margin-top: 4px;
       opacity: 0.6;
       font-size: 14px;
     }
 
-    article ul {
+    ul {
       margin-bottom: 0;
     }
 
-    article ul li > p {
+    ul li > p {
       display: inline;
     }
 
-    article x-tag {
+    x-tag {
       vertical-align: middle;
       margin-bottom: 2px;
       margin-right: 4px;
       background: #ec407a;
       font-size: 13px;
+      color: white;
+      border-width: 0px;
     }
-  `
+    x-tag:hover,
+    x-tag:active {
+      background: #ec407a;
+      color: white;
+    }
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +61,7 @@ export default class PTChangelogPageElement extends PTPage {
       if (this._shadowRoot.childElementCount === 0) {
         let changelogMarkdown = await (await fetch("/CHANGELOG.md")).text();
         let changelog = new ChangelogParser().parse(changelogMarkdown);
-        let changelogHTML = "";
+        let changelogHTML = "<h1>Changelog</h1>";
 
         for (let release of changelog) {
           let itemsHTML = `<ul>`;
@@ -70,7 +76,7 @@ export default class PTChangelogPageElement extends PTPage {
           }
 
           for (let item of release.items) {
-            let tagsHTML = item.tags.map(tag => `<x-tag size="small" skin="colored">${tag}</x-tag>`).join("");
+            let tagsHTML = item.tags.map(tag => `<x-tag size="small">${tag}</x-tag>`).join("");
 
             itemsHTML += `
               <li>${tagsHTML} ${this.#markdownToHTML(item.text)}</li>
@@ -81,21 +87,14 @@ export default class PTChangelogPageElement extends PTPage {
 
           changelogHTML += `
             <x-card>
-              <main>
-                <h3 id="v${release.version}">Version ${release.version}</h3>
-                <h4>${displayDate}</h4>
-                ${itemsHTML}
-              </main>
+              <h3 id="v${release.version}">Version ${release.version}</h3>
+              <h4>${displayDate}</h4>
+              ${itemsHTML}
             </x-card>
           `;
         }
 
-        this._shadowRoot.innerHTML = `
-          <article>
-            <h2>Changelog</h2>
-            ${changelogHTML}
-          </article>
-        `;
+        this._shadowRoot.innerHTML = changelogHTML;
       }
 
       resolve();

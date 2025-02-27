@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -23,9 +23,7 @@ export default class XColorSelectElement extends HTMLElement {
       <div id="preview"></div>
 
       <x-popover id="popover" part="popover" modal>
-        <main>
-          <x-colorpicker id="color-picker"></x-colorpicker>
-        </main>
+        <x-colorpicker id="color-picker"></x-colorpicker>
       </x-popover>
     </template>
   `;
@@ -54,9 +52,11 @@ export default class XColorSelectElement extends HTMLElement {
     }
 
     #popover {
+      overflow: visible;
       --align: left;
     }
-  `
+  `;
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // @property
@@ -143,6 +143,7 @@ export default class XColorSelectElement extends HTMLElement {
     }
 
     this.addEventListener("keydown", (event) => this.#onKeyDown(event));
+    this.addEventListener("pointerdown", (event) => this.#onPointerDown(event));
     this["#preview"].addEventListener("click", (event) => this.#onClick(event));
     this["#popover"].addEventListener("close", () => this.#onPopoverClose());
     this["#color-picker"].addEventListener("changestart", () => this.#onColorPickerChangeStart());
@@ -157,8 +158,11 @@ export default class XColorSelectElement extends HTMLElement {
     this.#updatePreview();
   }
 
-  attributeChangedCallback(name) {
-    if (name === "value") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "value") {
       this.#onValueAttributeChange();
     }
     else if (name === "alpha") {
@@ -274,6 +278,13 @@ export default class XColorSelectElement extends HTMLElement {
   #onColorPickerChangeEnd() {
     this.#isChangingColorPicker = false;
     this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}))
+  }
+
+  #onPointerDown(event) {
+    // Don't focus the widget with pointer
+    if (event.target === this && this.matches(":focus") === false) {
+      event.preventDefault();
+    }
   }
 
   #onClick(event) {

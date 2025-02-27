@@ -6,7 +6,8 @@ slogan-3 = For <em>Web</em>, <em>Electron</em> and <em>Hybrid</em> apps.
 # Sidebar nav
 about = About
 setup = Setup
-faq = FAQ
+elements = Elements
+typography = Typography
 changelog = Changelog
 license = License
 issues = Issues
@@ -14,6 +15,7 @@ source-code = Source code
 
 # Sidebar settings
 theme = Theme
+settings = Settings
 size = Size
 size-small = Small
 size-medium = Medium
@@ -26,7 +28,7 @@ accent-color-red = Red
 accent-color-orange = Orange
 accent-color-yellow = Yellow
 accent-color-green = Green
-accent-color-graphite = Graphite
+accent-color-gray = Gray
 icons = Icons
 locale = Locale
 locale-en = English

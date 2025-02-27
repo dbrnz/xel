@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -14,7 +14,7 @@ import {html, css} from "../utils/template.js";
 export default class PTApiBlockElement extends HTMLElement {
   static #shadowTemplate = html`
     <template>
-      <article>
+      <x-card>
         <section id="element-section">
           <h4>Element</h4>
           <table id="element-table"></table>
@@ -44,7 +44,7 @@ export default class PTApiBlockElement extends HTMLElement {
           <h4>Icons</h4>
           <table id="icons-table"></table>
         </section>
-      </article>
+      </x-card>
     </template>
   `;
 
@@ -53,8 +53,30 @@ export default class PTApiBlockElement extends HTMLElement {
       display: block;
     }
 
+    x-card {
+      padding: 20px;
+    }
+    x-card:first-child {
+      margin-top: 20px;
+    }
+
+    x-card > :first-child {
+      margin-top: 0;
+    }
+    x-card > :last-child {
+      margin-bottom: 0;
+    }
+    x-card > :first-child > :first-child {
+      margin-top: 0;
+    }
+
+    section + section {
+      margin-top: 24px;
+    }
+
     table {
       width: 100%;
+      margin: 0;
     }
     table + table {
       margin-top: 22px;
@@ -90,7 +112,7 @@ export default class PTApiBlockElement extends HTMLElement {
       width: 20px;
       height: 20px;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -338,11 +360,11 @@ export default class PTApiBlockElement extends HTMLElement {
 
           let rowsHTML = `
             <tr>
-              <th>Name</th>
-              <th>Material</th>
-              <th>Material Outlined</th>
+              <th>ID</th>
               <th>Fluent</th>
               <th>Fluent Outlined</th>
+              <th>Material</th>
+              <th>Material Outlined</th>
             </tr>
           `;
 
@@ -350,10 +372,10 @@ export default class PTApiBlockElement extends HTMLElement {
             rowsHTML += `
               <tr>
                 <td>${id}</td>
-                <td><x-icon href="/node_modules/xel/icons/material.svg#${id}"></x-icon></td>
-                <td><x-icon href="/node_modules/xel/icons/material-outlined.svg#${id}"></x-icon></td>
                 <td><x-icon href="/node_modules/xel/icons/fluent.svg#${id}"></x-icon></td>
                 <td><x-icon href="/node_modules/xel/icons/fluent-outlined.svg#${id}"></x-icon></td>
+                <td><x-icon href="/node_modules/xel/icons/material.svg#${id}"></x-icon></td>
+                <td><x-icon href="/node_modules/xel/icons/material-outlined.svg#${id}"></x-icon></td>
               </tr>
             `;
           }

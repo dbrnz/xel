@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -27,12 +27,12 @@ export default class XNumberInputElement extends HTMLElement {
 
   static #shadowTemplate = html`
     <template>
-      <main id="main">
+      <div id="main">
         <div id="editor-container">
           <div id="editor" contenteditable="plaintext-only" spellcheck="false"></div>
         </div>
         <slot></slot>
-      </main>
+      </div>
     </template>
   `;
 
@@ -44,6 +44,7 @@ export default class XNumberInputElement extends HTMLElement {
       height: 32px;
       box-sizing: border-box;
       font-size: 12.5px;
+      line-height: 10;
       --inner-padding: 0 6px;
     }
     :host(:hover) {
@@ -83,14 +84,13 @@ export default class XNumberInputElement extends HTMLElement {
 
     #editor {
       width: 100%;
-      overflow: auto;
       color: inherit;
       background: none;
       border: none;
       outline: none;
       font-family: inherit;
       font-size: inherit;
-      line-height: 10;
+      line-height: inherit;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
@@ -113,9 +113,9 @@ export default class XNumberInputElement extends HTMLElement {
     :host([empty]) #editor::after,
     :host(:focus) #editor::before,
     :host(:focus) #editor::after {
-      content: "";
+      display: none;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -237,19 +237,6 @@ export default class XNumberInputElement extends HTMLElement {
 
   // @property
   // @attribute
-  // @type boolean
-  // @default false
-  //
-  // Whether the input should take less horizontal space.
-  get condensed() {
-    return this.hasAttribute("condensed");
-  }
-  set condensed(condensed) {
-    condensed ? this.setAttribute("condensed", "") : this.removeAttribute("condensed");
-  }
-
-  // @property
-  // @attribute
   // @type "small" || "large" || null
   // @default null
   get size() {
@@ -321,8 +308,11 @@ export default class XNumberInputElement extends HTMLElement {
     this.#update();
   }
 
-  attributeChangedCallback(name) {
-    if (name === "value") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "value") {
       this.#onValueAttributeChange();
     }
     else if (name === "min") {

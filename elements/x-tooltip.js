@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -43,7 +43,7 @@ export default class XTooltipElement extends HTMLElement {
     :host([animating]) {
       display: block;
     }
-  `
+  `;
 
   // @property
   // @attribute
@@ -80,6 +80,7 @@ export default class XTooltipElement extends HTMLElement {
   #shadowRoot = null;
   #scrollableAncestor = null;
   #ancestorScrollListener;
+  #resizeObserver;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,12 +96,19 @@ export default class XTooltipElement extends HTMLElement {
     }
   }
 
-  attributeChangedCallback(name) {
-    if (name === "disabled") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "disabled") {
       if (this.disabled && this.opened) {
         this.close();
       }
     }
+  }
+
+  disconnectedCallback() {
+    this.close(false);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +124,11 @@ export default class XTooltipElement extends HTMLElement {
         this.setAttribute("opened", "");
         this.#updatePosition(context);
         this.#scrollableAncestor = getClosestScrollableAncestor(this);
+
+        if (context instanceof Element) {
+          this.#resizeObserver = new ResizeObserver(() => this.#updatePosition(context));
+          this.#resizeObserver.observe(this);
+        }
 
         if (this.#scrollableAncestor) {
           this.#scrollableAncestor.addEventListener("scroll", this.#ancestorScrollListener = () => {
@@ -149,7 +162,15 @@ export default class XTooltipElement extends HTMLElement {
       if (this.opened === true) {
         this.removeAttribute("opened");
         this.dispatchEvent(new CustomEvent("close", {bubbles: true, detail: this}));
-        this.#scrollableAncestor.removeEventListener("scroll", this.#ancestorScrollListener);
+
+        if (this.#scrollableAncestor) {
+          this.#scrollableAncestor.removeEventListener("scroll", this.#ancestorScrollListener);
+        }
+
+        if (this.#resizeObserver) {
+          this.#resizeObserver.unobserve(this);
+          this.#resizeObserver = null;
+        }
 
         if (animate) {
           let transition = getComputedStyle(this).getPropertyValue("--close-transition");

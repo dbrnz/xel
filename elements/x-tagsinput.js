@@ -1,12 +1,13 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
 import Xel from "../classes/xel.js";
 
 import {html, css} from "../utils/template.js";
+import {getTimeStamp} from "../utils/time.js";
 
 // @element x-tagsinput
 // @event input
@@ -22,12 +23,10 @@ export default class XTagsInputElement extends HTMLElement {
 
   static #shadowTemplate = html`
     <template>
-      <main id="main">
-        <div id="tags">
-          <slot></slot>
-          <input id="input" type="text" part="input" spellcheck="false" tabindex="0"></input>
-        </div>
-      </main>
+      <div id="main">
+        <slot></slot>
+        <input id="input" type="text" part="input" spellcheck="false" tabindex="0"></input>
+      </div>
 
       <x-popover id="suggestions-popover" part="suggestions">
         <div id="suggested-tags"></div>
@@ -39,7 +38,10 @@ export default class XTagsInputElement extends HTMLElement {
     :host {
       display: block;
       position: relative;
-      min-height: 29px;
+      box-sizing: border-box;
+      padding: 3px;
+      min-height: 32px;
+      gap: 3px;
       font-size: 12px;
     }
     :host(:focus) {
@@ -62,17 +64,12 @@ export default class XTagsInputElement extends HTMLElement {
       width: 100%;
       height: 100%;
       cursor: text;
-    }
-
-    /**
-     * Tags
-     */
-
-    #tags {
       display: flex;
+      align-items: center;
       flex-wrap: wrap;
+      gap: inherit;
     }
-    :host([mixed]) #tags {
+    :host([mixed]) #main {
       opacity: 0.7;
     }
 
@@ -82,16 +79,17 @@ export default class XTagsInputElement extends HTMLElement {
 
     #input {
       width: 10px;
-      height: 25px;
+      height: 16px;
       margin: 2px;
-      padding: 0px 3px 0 6px;
+      padding: 0px 3px 0 5px;
       box-sizing: border-box;
-      line-height: 25px;
+      line-height: 22px;
       color: inherit;
       background: none;
       border: none;
       outline: none;
       font-size: inherit;
+      font-family: inherit;
     }
 
     /**
@@ -117,7 +115,7 @@ export default class XTagsInputElement extends HTMLElement {
     #suggestions-popover x-tag:first-child {
       margin-top: 0;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -215,6 +213,7 @@ export default class XTagsInputElement extends HTMLElement {
       this["#" + element.id] = element;
     }
 
+    this.addEventListener("pointerdown", (event) => this.#onPointerDown(event));
     this.#shadowRoot.addEventListener("pointerdown", (event) => this.#onShadowRootPointerDown(event));
     this.#shadowRoot.addEventListener("remove", (event) => this.#onRemoveButtonClick(event));
     this.#shadowRoot.addEventListener("keydown", (event) => this.#onKeyDown(event));
@@ -326,13 +325,24 @@ export default class XTagsInputElement extends HTMLElement {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  #lastShadowRootPointerDownTime = 0;
+
+  #onPointerDown(event) {
+    if (event.target === this && event.defaultPrevented === false) {
+      event.preventDefault();
+      this["#input"].focus();
+    }
+  }
+
   #onShadowRootPointerDown(event) {
+    this.#lastShadowRootPointerDownTime = getTimeStamp();
+
     if (event.target === this["#input"]) {
       if (this["#input"].value.length > 0) {
         this.#clearSuggestions();
       }
     }
-    else if (event.target === this["#main"] || event.target === this["#tags"]) {
+    else if (event.target === this["#main"]) {
       event.preventDefault();
       this["#input"].focus();
       this.#updateSuggestions(false);
@@ -441,6 +451,9 @@ export default class XTagsInputElement extends HTMLElement {
         }
       }
       else if (event.target.localName === "x-tag") {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+
         let tags = [...this.children].filter(child => child.localName === "x-tag");
         let focusedTag = event.target;
         let focusedTagIndex = tags.indexOf(focusedTag);

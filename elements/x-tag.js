@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -9,7 +9,9 @@ import Xel from "../classes/xel.js";
 import {html, css} from "../utils/template.js";
 
 // @element x-tag
-// @part main scope remove-button
+// @part main
+// @part scope
+// @part remove-button
 // @event ^remove - User clicked the remove button of a removable tag.
 export default class XTagElement extends HTMLElement {
   static #shadowTemplate = html`
@@ -19,13 +21,13 @@ export default class XTagElement extends HTMLElement {
           <slot id="scope-slot" name="scope"></slot>
         </div>
 
-        <main id="main" part="main">
+        <div id="main" part="main">
           <slot></slot>
 
           <svg id="remove-button" part="remove-button" width="12" height="12" viewBox="0 0 100 100">
             <path id="remove-button-path"></path>
           </svg>
-        </main>
+        </div>
       </div>
     </template>
   `;
@@ -33,12 +35,13 @@ export default class XTagElement extends HTMLElement {
   static #shadowStyleSheet = css`
     :host {
       display: inline-block;
-      height: 25px;
+      height: 22px;
       box-sizing: border-box;
       overflow: hidden;
       color: var(--text-color);
       border-width: 1px;
       border-style: solid;
+      cursor: default;
     }
     :host([toggled]) {
       background: gray;
@@ -46,6 +49,7 @@ export default class XTagElement extends HTMLElement {
       outline: none;
     }
     :host([disabled]) {
+      pointer-events: none;
       opacity: 0.5;
     }
     :host([hidden]) {
@@ -99,7 +103,6 @@ export default class XTagElement extends HTMLElement {
       display: block;
     }
     #remove-button:hover {
-      background: rgba(0, 0, 0, 0.1);
       opacity: 1;
     }
 
@@ -107,7 +110,7 @@ export default class XTagElement extends HTMLElement {
       fill: inherit;
       pointer-events: none;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -188,7 +191,10 @@ export default class XTagElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.#updateRemoveButtonPathData();
+    Xel.whenThemeReady.then(() => {
+      this.#updateRemoveButtonPathData();
+    });
+
     this.#updateScopedAttribute();
 
     Xel.addEventListener("themechange", this.#xelThemeChangeListener = () => this.#updateRemoveButtonPathData());

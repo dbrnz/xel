@@ -1,0 +1,111 @@
+<section id="intro-section">
+  <h1>Avatar</h1>
+  <p><strong>&lt;x-avatar&gt;</strong> is used to display a user image.</p>
+
+  <x-avatar>
+    <x-icon href="#person"></x-icon>
+  </x-avatar>
+</section>
+
+<hr/>
+
+<section id="api-section">
+  <h2>API</h2>
+  <pt-apiblock value="elements/x-avatar.js"></pt-apiblock>
+</section>
+
+<hr/>
+
+<section id="examples-section">
+  <h2>Examples</h2>
+
+  <section>
+    <h3>Image</h3>
+
+    <pt-demoblock>
+      <template>
+        <x-avatar>
+          <img src="https://boxy-svg.com/box.jpg">
+        </x-avatar>
+      </template>
+    </pt-demoblock>
+  </section>
+
+  <hr/>
+
+  <section>
+    <h3>Placeholder icon</h3>
+
+    <pt-demoblock>
+      <template>
+        <x-avatar>
+          <x-icon href="#person"></x-icon>
+        </x-avatar>
+      </template>
+    </pt-demoblock>
+  </section>
+
+  <hr/>
+
+  <section>
+    <h3>Placeholder initials</h3>
+
+    <pt-demoblock>
+      <template>
+        <x-avatar>
+          <x-label>AB</x-label>
+        </x-avatar>
+      </template>
+    </pt-demoblock>
+  </section>
+
+  <hr/>
+
+  <section>
+    <h3>Custom color</h3>
+
+    <pt-demoblock>
+      <template>
+        <x-avatar style="color: white; background-color: #e16daa;">
+          <x-icon href="#person"></x-icon>
+        </x-avatar>
+      </template>
+    </pt-demoblock>
+  </section>
+
+  <hr/>
+
+  <section>
+    <h3>Size variants</h3>
+
+    <pt-demoblock>
+      <template>
+        <x-box style="gap: 6px;">
+          <x-avatar size="small">
+            <img src="https://boxy-svg.com/box.jpg">
+          </x-avatar>
+
+          <x-avatar size="small">
+            <x-icon href="#person"></x-icon>
+          </x-avatar>
+
+          <x-avatar size="small">
+            <x-label>AB</x-label>
+          </x-avatar>
+
+          <x-avatar size="large">
+            <img src="https://boxy-svg.com/box.jpg">
+          </x-avatar>
+
+          <x-avatar size="large">
+            <x-icon href="#person"></x-icon>
+          </x-avatar>
+
+          <x-avatar size="large">
+            <x-label>AB</x-label>
+          </x-avatar>
+        </x-box>
+      </template>
+    </pt-demoblock>
+  </section>
+</section>

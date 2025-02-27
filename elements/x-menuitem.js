@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -112,7 +112,7 @@ export default class XMenuItemElement extends HTMLElement {
     #arrow path {
       fill: currentColor;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -218,8 +218,11 @@ export default class XMenuItemElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.#updateCheckmarkPathData();
-    this.#updateArrowPathData();
+    Xel.whenThemeReady.then(() => {
+      this.#updateCheckmarkPathData();
+      this.#updateArrowPathData();
+    });
+
     this.#updateArrowIconVisibility();
     this.#updateAccessabilityAttributes();
 
@@ -234,8 +237,11 @@ export default class XMenuItemElement extends HTMLElement {
     Xel.removeEventListener("themechange", this.#xelThemeChangeListener);
   }
 
-  attributeChangedCallback(name) {
-    if (name === "disabled") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "disabled") {
       this.#updateAccessabilityAttributes();
     }
   }
@@ -253,7 +259,7 @@ export default class XMenuItemElement extends HTMLElement {
   }
 
   #updateArrowIconVisibility() {
-    if (this.parentElement.localName === "x-menubar") {
+    if (this.parentElement && this.parentElement.localName === "x-menubar") {
       this["#arrow"].setAttribute("hidden", "");
     }
     else {

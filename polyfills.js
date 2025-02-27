@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -163,56 +163,6 @@ if (!window.requestIdleCallback) {
     }, 1);
   };
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//
-// HTMLHeadingElement polyfills
-//
-
-// Add support for "disabled" property on <h1>, <h2>, <h3>, <h4>, <h5>, <h6> elements (non-standard).
-Object.defineProperty(HTMLHeadingElement.prototype, "disabled", {
-  enumerable: false,
-  configurable: false,
-
-  get() {
-    return this.hasAttribute("disabled");
-  },
-
-  set(value) {
-    if (value === true) {
-      this.setAttribute("disabled", "");
-    }
-    else {
-      this.removeAttribute("disabled");
-    }
-  }
-});
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//
-// HTMLParagraphElement polyfills
-//
-
-// Add support for "disabled" property on <p> elements (non-standard).
-Object.defineProperty(HTMLParagraphElement.prototype, "disabled", {
-  enumerable: false,
-  configurable: false,
-
-  get() {
-    return this.hasAttribute("disabled");
-  },
-
-  set(value) {
-    if (value === true) {
-      this.setAttribute("disabled", "");
-    }
-    else {
-      this.removeAttribute("disabled");
-    }
-  }
-});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

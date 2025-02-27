@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -21,9 +21,11 @@ export default class XContextMenuElement extends HTMLElement {
       position: fixed;
       width: 0px;
       height: 0px;
+      font-size: 14px;
       z-index: 1001;
     }
-  `
+  `;
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // @property

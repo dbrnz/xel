@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -45,7 +45,7 @@ export default class XSelectElement extends HTMLElement {
       box-sizing: border-box;
       position: relative;
       outline: none;
-      font-size: 14px;
+      font-size: 0.875rem;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -105,7 +105,7 @@ export default class XSelectElement extends HTMLElement {
     #button > #arrow-container #arrow path {
       fill: currentColor;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -198,8 +198,11 @@ export default class XSelectElement extends HTMLElement {
     this.#resizeObserver.observe(this);
 
     this.#updateButton();
-    this.#updateArrowPathData();
     this.#updateAccessabilityAttributes();
+
+    Xel.whenThemeReady.then(() => {
+      this.#updateArrowPathData();
+    });
 
     if (DEBUG) {
       this.setAttribute("debug", "");
@@ -215,7 +218,10 @@ export default class XSelectElement extends HTMLElement {
     Xel.removeEventListener("themechange", this.#xelThemeChangeListener);
   }
 
-  attributeChangedCallback(name) {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
     if (name === "disabled") {
       this.#updateAccessabilityAttributes();
     }

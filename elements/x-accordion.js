@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -13,19 +13,17 @@ import {html, css} from "../utils/template.js";
 // @event expand - User expanded the accordion by clicking the arrow icon.
 // @event collapse - User collapsed the accordion by clicking the arrow icon.
 export default class XAccordionElement extends HTMLElement {
-  static observedAttributes = ["expanded"];
-
   static #shadowTemplate = html`
     <template>
-      <main id="main">
-        <div id="arrow-container">
-          <svg id="arrow" part="arrow" viewBox="0 0 100 100" preserveAspectRatio="none" tabindex="1">
+      <div id="main">
+        <div id="arrow" part="arrow" tabindex="1">
+          <svg id="arrow-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path id="arrow-path"></path>
           </svg>
         </div>
 
         <slot></slot>
-      </main>
+      </div>
     </template>
   `;
 
@@ -33,7 +31,7 @@ export default class XAccordionElement extends HTMLElement {
     :host {
       display: block;
       width: 100%;
-      margin: 8px 0;
+      margin: 10px 0;
       box-sizing: border-box;
     }
     :host([disabled]) {
@@ -54,38 +52,40 @@ export default class XAccordionElement extends HTMLElement {
      * Arrow
      */
 
-    #arrow-container {
+    #arrow {
       position: absolute;
       top: 0;
-      width: 100%;
-      height: 100%;
       display: flex;
       align-items: center;
       justify-content: flex-start;
       pointer-events: none;
+      transform: translateY(-50%);
+      --path-data: M 26 20 L 26 80 L 74 50 Z;
+    }
+    :host([animating]) #arrow {
+      outline: none !important;
     }
 
-    #arrow {
+    #arrow-svg {
       display: flex;
       width: 16px;
       height: 16px;
       transform: rotate(0deg);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       color: currentColor;
-      --path-data: M 26 20 L 26 80 L 74 50 Z;
     }
-    #arrow:focus {
+    #arrow-svg:focus {
       background: transparent;
       outline: none;
     }
-    :host([expanded]) #arrow {
+    :host([expanded]) #arrow-svg {
       transform: rotate(90deg);
     }
 
     #arrow-path {
       fill: currentColor;
     }
-  `
+  `;
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // @property
@@ -127,8 +127,10 @@ export default class XAccordionElement extends HTMLElement {
   }
 
   #shadowRoot = null;
-  #resizeObserver = null;
-  #currentAnimation = null;
+  #headerElement = null;
+  #headerResizeObserver = null;
+  #childListMutationObserver = null;
+  #currentAnimations = [];
 
   #xelThemeChangeListener = null;
 
@@ -145,33 +147,35 @@ export default class XAccordionElement extends HTMLElement {
       this["#" + element.id] = element;
     }
 
-    this.#resizeObserver = new ResizeObserver(() => this.#updateArrowPosition());
-
     this.addEventListener("click", (event) => this.#onClick(event));
     this["#arrow"].addEventListener("keydown", (event) => this.#onArrowKeyDown(event));
   }
 
-  connectedCallback() {
-    this.#updateArrowPathData();
+  async connectedCallback() {
+    await Xel.whenThemeReady;
+
+    this.#headerResizeObserver = new ResizeObserver(() => this.#onHeaderResize());
+    this.#childListMutationObserver = new MutationObserver((args) => this.#onChildListChange(args));
+    this.#childListMutationObserver.observe(this, {childList: true});
 
     Xel.addEventListener("themechange", this.#xelThemeChangeListener = () => this.#updateArrowPathData());
 
-    this.#resizeObserver.observe(this);
+    this.#updateArrowPathData();
+    this.#updateArrowPosition();
+
+    this.#onChildListChange();
   }
 
   disconnectedCallback() {
     Xel.removeEventListener("themechange", this.#xelThemeChangeListener);
 
-    this.#resizeObserver.unobserve(this);
-  }
+    if (this.#headerElement) {
+      this.#headerResizeObserver.unobserve(this.#headerElement);
+      this.#headerElement = null;
+    }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue === newValue) {
-      return;
-    }
-    else if (name === "expanded") {
-      this.#updateArrowPosition();
-    }
+    this.#headerResizeObserver.disconnect();
+    this.#childListMutationObserver.disconnect();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,41 +187,39 @@ export default class XAccordionElement extends HTMLElement {
   expand(animate = true) {
     return new Promise(async (resolve) => {
       if (this.expanded === false) {
-        let startBBox = this.getBoundingClientRect();
-
-        if (this.#currentAnimation) {
-          this.#currentAnimation.finish();
+        if (animate === false) {
+          this.#clearCurrentAnimations();
+          this.removeAttribute("animating");
+          this.expanded = true;
         }
+        else if (animate === true) {
+          let startBBox = this.getBoundingClientRect();
 
-        this.removeAttribute("animating");
-
-        if (animate) {
+          this.#clearCurrentAnimations();
+          this.removeAttribute("animating");
           this.expanded = true;
 
           let endBBox = this.getBoundingClientRect();
           this.setAttribute("animating", "");
 
-          let animation = this.animate(
-            {
-              height: [startBBox.height + "px", endBBox.height + "px"],
-            },
-            {
-              duration: 300,
-              easing: "cubic-bezier(0.4, 0, 0.2, 1)"
-            }
-          );
+          let animations = [
+            this.animate(
+              { height: [`${startBBox.height}px`, `${endBBox.height}px`]},
+              { duration: 200, easing: "cubic-bezier(0.4, 0, 0.2, 1)" }
+            ),
+            this["#arrow-svg"].animate(
+              { transform: ["rotate(0deg)", "rotate(90deg)"] },
+              { duration: 200, easing: "cubic-bezier(0.4, 0, 0.2, 1)" }
+            )
+          ];
 
-          this.#currentAnimation = animation;
-          await animation.finished;
+          this.#currentAnimations = animations;
+          await Promise.all(animations.map(animation => animation.finished));
 
-          if (this.#currentAnimation === animation) {
+          if (this.#currentAnimations === animations) {
+            this.#currentAnimations = [];
             this.removeAttribute("animating");
           }
-        }
-        else {
-          this["#arrow"].style.transition = "none";
-          this.expanded = true;
-          this["#arrow"].style.transition = null;
         }
       }
 
@@ -232,46 +234,51 @@ export default class XAccordionElement extends HTMLElement {
   collapse(animate = true) {
     return new Promise(async (resolve) => {
       if (this.expanded === true) {
-        let startBBox = this.getBoundingClientRect();
-
-        if (this.#currentAnimation) {
-          this.#currentAnimation.finish();
+        if (animate === false) {
+          this.#clearCurrentAnimations();
+          this.removeAttribute("animating");
+          this.expanded = false;
         }
+        else if (animate === true) {
+          let startBBox = this.getBoundingClientRect();
 
-        this.removeAttribute("animating");
-
-        if (animate) {
+          this.#clearCurrentAnimations();
+          this.removeAttribute("animating");
           this.expanded = false;
 
           let endBBox = this.getBoundingClientRect();
           this.setAttribute("animating", "");
 
-          let animation = this.animate(
-            {
-              height: [startBBox.height + "px", endBBox.height + "px"],
-            },
-            {
-              duration: 300,
-              easing: "cubic-bezier(0.4, 0, 0.2, 1)"
-            }
-          );
+          let animations = [
+            this.animate(
+              { height: [`${startBBox.height}px`, `${endBBox.height}px`]},
+              { duration: 200, easing: "cubic-bezier(0.4, 0, 0.2, 1)" }
+            ),
+            this["#arrow-svg"].animate(
+              { transform: ["rotate(90deg)", "rotate(0deg)"] },
+              { duration: 200, easing: "cubic-bezier(0.4, 0, 0.2, 1)" }
+            )
+          ];
 
-          this.#currentAnimation = animation;
-          await animation.finished;
+          this.#currentAnimations = animations;
+          await Promise.all(animations.map(animation => animation.finished));
 
-          if (this.#currentAnimation === animation) {
+          if (this.#currentAnimations === animations) {
+            this.#currentAnimations = [];
             this.removeAttribute("animating");
           }
-        }
-        else {
-          this["#arrow"].style.transition = "none";
-          this.expanded = false;
-          this["#arrow"].style.transition = null;
         }
       }
 
       resolve();
     });
+  }
+
+  #clearCurrentAnimations() {
+    if (this.#currentAnimations.length > 0) {
+      this.#currentAnimations.map(animation => animation.finish())
+      this.#currentAnimations = [];
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,10 +287,10 @@ export default class XAccordionElement extends HTMLElement {
     let header = this.querySelector(":scope > header");
 
     if (header) {
-      this["#arrow-container"].style.height = header.getBoundingClientRect().height + "px";
+      this["#arrow"].style.top = (header.getBoundingClientRect().height / 2) + "px";
     }
     else {
-      this["#arrow-container"].style.height = null;
+      this["#arrow"].style.height = null;
     }
   }
 
@@ -293,6 +300,25 @@ export default class XAccordionElement extends HTMLElement {
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  #onChildListChange() {
+    let headerElement = this.querySelector(":scope > header");
+
+    if (headerElement !== this.#headerElement) {
+      if (headerElement === null) {
+        this.#headerResizeObserver.unobserve(this.#headerElement);
+        this.#headerElement = null;
+      }
+      else {
+        this.#headerElement = headerElement;
+        this.#headerResizeObserver.observe(this.#headerElement);
+      }
+    }
+  }
+
+  #onHeaderResize() {
+    this.#updateArrowPosition();
+  }
 
   #onArrowKeyDown(event) {
     if (event.code === "Enter" || event.code === "NumpadEnter") {

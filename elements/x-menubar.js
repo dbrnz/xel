@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -31,7 +31,7 @@ export default class XMenuBarElement extends HTMLElement {
       align-items: center;
       width: 100%;
       height: 36px;
-      font-size: 14px;
+      font-size: 0.875rem;
       box-sizing: border-box;
     }
     :host([disabled]) {
@@ -62,7 +62,7 @@ export default class XMenuBarElement extends HTMLElement {
       opacity: 0;
       pointer-events: all;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -127,8 +127,11 @@ export default class XMenuBarElement extends HTMLElement {
     window.removeEventListener("orientationchange", this.#orientationChangeListener);
   }
 
-  attributeChangedCallback(name) {
-    if (name === "disabled") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "disabled") {
       this.#onDisabledAttributeChange();
     }
   }

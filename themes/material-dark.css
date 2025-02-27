@@ -1,0 +1,77 @@
+
+/*
+ * @copyright
+ *   © 2016-2025 Jarosław Foksa
+ * @license
+ *   MIT License (check LICENSE.md for details)
+ * @doc
+ *   https://m3.material.io/
+ *   https://www.figma.com/community/file/1035203688168086460
+ *
+ * Theme implementing Material Design version 3.
+ */
+
+@import "/node_modules/xel/themes/material.css";
+
+/*****************************************************************************************************************/
+
+:root {
+  --foreground-color:           lch(from var(--material-primary-color) 25 10 h);
+  --selection-color:            var(--material-on-secondary-fixed-color);
+  --selection-background-color: var(--material-secondary-fixed-dim-color);
+  --autofill-background-color:  color(srgb 0.95 0.93 0.89);
+}
+
+/*****************************************************************************************************************/
+
+/**
+ * HTML elements
+ */
+
+pre, code, var {
+  background-color: color(srgb 1 1 1 / 0.06);
+}
+
+mark, ::highlight(mark) {
+  background-color: color(srgb 0.9 0.65 0.04);
+}
+
+/*****************************************************************************************************************/
+
+/**
+ * Input
+ */
+
+x-input[error] {
+  --selection-background-color: var(--material-error-color);
+}
+
+/*****************************************************************************************************************/
+
+/**
+ * Number input
+ */
+
+x-numberinput[error] {
+  --selection-background-color: var(--material-error-color);
+}
+
+/*****************************************************************************************************************/
+
+/**
+ * Text editor
+ */
+
+x-texteditor[error] {
+  --selection-background-color: var(--material-error-color);
+}
+
+/*****************************************************************************************************************/
+
+/**
+ * Color input
+ */
+
+x-colorinput[error] {
+  --selection-background-color: var(--material-error-color);
+}

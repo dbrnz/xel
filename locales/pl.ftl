@@ -6,7 +6,8 @@ slogan-3 = Dla aplikacji <em>webowych</em>, <em>hybrydowych</em> i bazujących n
 # Sidebar nav
 about = O projekcie
 setup = Konfiguracja
-faq = Najczęstsze pytania
+elements = Elementy
+typography = Typografia
 changelog = Historia zmian
 license = Licencja
 issues = Problemy
@@ -14,6 +15,7 @@ source-code = Kod źródłowy
 
 # Sidebar settings
 theme = Motyw
+settings = Ustawienia
 size = Rozmiar
 size-small = Małe
 size-medium = Średnie
@@ -26,7 +28,7 @@ accent-color-red = Czerwony
 accent-color-orange = Pomarańczowy
 accent-color-yellow = Żółty
 accent-color-green = Zielony
-accent-color-graphite = Grafitowy
+accent-color-gray = Szary
 icons = Ikony
 locale = Lokalizacja
 locale-en = Angielski

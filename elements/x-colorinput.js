@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -14,7 +14,7 @@ import {sleep} from "../utils/time.js";
 
 const WINDOW_PADDING = 7;
 
-// @element x-input
+// @element x-colorinput
 // @event ^input
 // @event ^change
 // @event ^textinputmodestart
@@ -25,7 +25,7 @@ export default class XColorInputElement extends HTMLElement {
 
   static #shadowTemplate = html`
     <template>
-      <main id="main">
+      <div id="main">
         <slot></slot>
 
         <input id="input" type="text" spellcheck="false" autocomplete="false" part="input"></input>
@@ -37,7 +37,7 @@ export default class XColorInputElement extends HTMLElement {
         </div>
 
         <slot></slot>
-      </main>
+      </div>
     </template>
   `;
 
@@ -49,7 +49,6 @@ export default class XColorInputElement extends HTMLElement {
       height: 32px;
       padding: 0 2px 0 8px;
       box-sizing: border-box;
-      background: white;
       font-size: 14px;
     }
     :host([size="small"]) {
@@ -97,6 +96,7 @@ export default class XColorInputElement extends HTMLElement {
       font-size: inherit;
       font-weight: inherit;
       text-align: inherit;
+      text-overflow: ellipsis;
     }
 
     /* Selection rect */
@@ -107,10 +107,6 @@ export default class XColorInputElement extends HTMLElement {
     :host(:not(:focus)) ::selection {
       color: inherit;
       background: transparent;
-    }
-    :host([error]) ::selection {
-      color: white;
-      background-color: #d50000;
     }
 
     /**
@@ -141,19 +137,20 @@ export default class XColorInputElement extends HTMLElement {
       padding: 2px 2px;
     }
     :host([size="large"]) #arrow {
-      padding: 6px 2px;
+      padding: 0px 1px;
     }
 
     #arrow path {
       fill: currentColor;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // @property
-  // @attribute partial
+  // @attribute
   // @type string?
+  // @partial
   // @default "#000000"
   get value() {
     return this.#value;
@@ -177,8 +174,7 @@ export default class XColorInputElement extends HTMLElement {
 
   // @property
   // @attribute
-  // @type "srgb" || "srgb-linear" || "p3" || "rec2020" || "a98rgb" || "prophoto" ||
-  //       "oklch" || "oklab" || "lch" || "lab" || "xyz-d65" || "xyz-d50"
+  // @type "srgb" || "srgb-linear" || "p3" || "rec2020" || "a98rgb" || "prophoto" || "oklch" || "oklab" || "lch" || "lab" || "xyz-d65" || "xyz-d50"
   // @default "srgb"
   get space() {
     return this.hasAttribute("space") ? this.getAttribute("space") : "srgb";
@@ -266,7 +262,7 @@ export default class XColorInputElement extends HTMLElement {
   }
 
   #value = "#000000";
-  #format = "srgb";
+  #format = "hex";
 
   #shadowRoot = null;
   #lastTabIndex = 0;
@@ -292,7 +288,6 @@ export default class XColorInputElement extends HTMLElement {
     }
 
     this["#format-menu"] = createElement("x-menu");
-    this.append(this["#format-menu"]);
 
     this["#backdrop"] = createElement("x-backdrop");
     this["#backdrop"].style.opacity = "0";
@@ -397,7 +392,6 @@ export default class XColorInputElement extends HTMLElement {
     }
 
     let menu = this["#format-menu"];
-    this["#backdrop"].show(false);
 
     window.addEventListener("resize", this.#resizeListener = () => this.#collapse());
     window.addEventListener("blur", this.#blurListener = () => this.#collapse());
@@ -405,6 +399,14 @@ export default class XColorInputElement extends HTMLElement {
     // Populate the menu
     {
       let color = parseColor(this.value);
+
+      if (color.spaceId !== this.space) {
+        color = convertColor(color, this.space);
+
+        if (color.spaceId === undefined) {
+          color.spaceId = color.space.id;
+        }
+      }
 
       if (["srgb", "hwb", "hsl"].includes(color.spaceId)) {
         menu.innerHTML = `
@@ -533,6 +535,9 @@ export default class XColorInputElement extends HTMLElement {
       let toggledItem = menu.querySelector(`x-menuitem[toggled]`);
       let firstItem = menu.querySelector("x-menuitem").firstElementChild;
 
+      this.append(menu);
+      this["#backdrop"].show(false);
+
       if (toggledItem) {
         // @todo
         menu.openOverElement(this["#input"],toggledItem.querySelector("x-label"));
@@ -590,6 +595,7 @@ export default class XColorInputElement extends HTMLElement {
 
     await menu.close();
     menu.removeAttribute("closing");
+    menu.remove();
   }
 
   #canExpand() {
@@ -833,12 +839,10 @@ export default class XColorInputElement extends HTMLElement {
   }
 
   #onValueAttributeChange() {
-    if (this.isConnected) {
-      this.value = this.hasAttribute("value") ? this.getAttribute("value") : "";
+    this.value = this.hasAttribute("value") ? this.getAttribute("value") : "";
 
-      if (this.matches(":focus")) {
-        this.selectAll();
-      }
+    if (this.matches(":focus")) {
+      this.selectAll();
     }
   }
 
@@ -1032,8 +1036,10 @@ export default class XColorInputElement extends HTMLElement {
   }
 
   #updateArrowPathData() {
-    let pathData = getComputedStyle(this["#arrow"]).getPropertyValue("--path-data");
-    this["#arrow-path"].setAttribute("d", pathData);
+    Xel.whenThemeReady.then(() => {
+      let pathData = getComputedStyle(this["#arrow"]).getPropertyValue("--path-data");
+      this["#arrow-path"].setAttribute("d", pathData);
+    });
   }
 
   #updateValidityIndicators() {

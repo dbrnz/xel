@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -22,10 +22,10 @@ export default class XTextEditorElement extends HTMLElement {
 
   static #shadowTemplate = html`
     <template>
-      <main id="main">
+      <div id="main">
         <slot></slot>
         <div id="editor" contenteditable="plaintext-only" spellcheck="false"></div>
-      </main>
+      </div>
     </template>
   `;
 
@@ -36,7 +36,6 @@ export default class XTextEditorElement extends HTMLElement {
       width: 100%;
       min-height: 100px;
       box-sizing: border-box;
-      background: white;
       font-size: 12.5px;
       overflow: auto;
     }
@@ -61,10 +60,6 @@ export default class XTextEditorElement extends HTMLElement {
     :host(:not(:focus)) ::selection {
       color: inherit;
       background: none;
-    }
-    :host([error]) ::selection {
-      color: white;
-      background-color: #d50000;
     }
 
     ::-webkit-scrollbar {
@@ -101,7 +96,7 @@ export default class XTextEditorElement extends HTMLElement {
       font-family: inherit;
       font-size: inherit;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -305,8 +300,11 @@ export default class XTextEditorElement extends HTMLElement {
     }
   }
 
-  attributeChangedCallback(name) {
-    if (name === "value") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "value") {
       this.#onValueAttributeChange();
     }
     else if (name === "spellcheck") {
@@ -448,7 +446,7 @@ export default class XTextEditorElement extends HTMLElement {
   }
 
   #onDisabledAttributeChange() {
-    this["#editor"].disabled = this.disabled;
+    this["#editor"].contentEditable = this.disabled ? "false" : "plaintext-only";
     this.#updateAccessabilityAttributes();
   }
 

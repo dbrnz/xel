@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -10,12 +10,12 @@ import {html, css} from "../utils/template.js";
 export default class PTAboutPageElement extends PTPage {
   static _shadowTemplate = html`
     <template>
-      <main>
+      <div id="container">
         <h1><span>X</span>el</h1>
         <h2><x-message href="#slogan-1"></x-message></h2>
         <h2><x-message href="#slogan-2"></x-message></h2>
         <h2><x-message href="#slogan-3"></x-message></h2>
-      </main>
+      </div>
     </template>
   `;
 
@@ -26,13 +26,14 @@ export default class PTAboutPageElement extends PTPage {
       height: 100vh;
       display: flex;
       align-items: center;
+      background: var(--accent-color);
     }
 
     ::selection {
       background: rgba(255, 255, 255, 0.3);
     }
 
-    main {
+    #container {
       margin: 0 auto;
       max-width: 500px;
     }
@@ -44,6 +45,7 @@ export default class PTAboutPageElement extends PTPage {
       margin: 0 0 50px 0;
       padding: 0;
       line-height: 1;
+      color: rgba(255,255,255);
     }
 
     h1 span {
@@ -65,7 +67,7 @@ export default class PTAboutPageElement extends PTPage {
       font-style: normal;
       font-weight: 700;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

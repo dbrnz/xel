@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -65,12 +65,12 @@ class XColorPickerElement extends HTMLElement {
         </x-buttons>
       </header>
 
-      <main id="main"></main>
+      <div id="main"></div>
 
       <footer id="footer">
         <x-colorinput id="input" space="srgb" size="small"></x-colorinput>
 
-        <x-button id="grab-button" size="small" condensed togglable>
+        <x-button id="grab-button" part="grab-button" size="small" condensed togglable>
           <x-icon href="#eye-dropper"></x-icon>
         </x-button>
       </footer>
@@ -234,7 +234,6 @@ class XColorPickerElement extends HTMLElement {
 
   #shadowRoot;
   #configChangeListener;
-
   #isDraggingSlider = false;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +265,7 @@ class XColorPickerElement extends HTMLElement {
 
     if (DEBUG) {
       this.addEventListener("change", () => {
-        document.body.style.background = this.value;
+        document.documentElement.style.background = this.value;
       });
     }
   }
@@ -408,10 +407,10 @@ class XColorPickerElement extends HTMLElement {
     else {
       let convertedColor = convertColor(color, this["#space-select"].value, {inGamut: true});
 
-      // Convert missing components from NaN to 0
+      // Convert missing components to 0
       // @doc https://www.w3.org/TR/css-color-4/#missing
       for (let i = 0; i < convertedColor.coords.length; i += 1) {
-        if (isNaN(convertedColor.coords[i])) {
+        if (convertedColor.coords[i] === null || isNaN(convertedColor.coords[i])) {
           convertedColor.coords[i] = 0;
         }
       }
@@ -698,10 +697,10 @@ class XColorPickerElement extends HTMLElement {
       }
     }
 
-    // Convert missing components from NaN to 0
+    // Convert missing components to 0
     // @doc https://www.w3.org/TR/css-color-4/#missing
     for (let i = 0; i < color.coords.length; i += 1) {
-      if (isNaN(color.coords[i])) {
+      if (color.coords[i] === null || isNaN(color.coords[i])) {
         color.coords[i] = 0;
       }
     }
@@ -1001,10 +1000,10 @@ class XRGBLinearSlidersElement extends HTMLElement {
       this.#a = a;
     }
 
-    // Convert missing components from NaN to 0
+    // Convert missing components to 0
     // @doc https://www.w3.org/TR/css-color-4/#missing
     for (let i = 0; i < this.#coords.length; i += 1) {
-      if (isNaN(this.#coords[i])) {
+      if (this.#coords[i] === null || isNaN(this.#coords[i])) {
         this.#coords[i] = 0;
       }
     }
@@ -4776,10 +4775,10 @@ class XRGBPlanarSlidersElement extends HTMLElement {
       this.#a = a;
     }
 
-    // Convert missing components from NaN to 0
+    // Convert missing components to 0
     // @doc https://www.w3.org/TR/css-color-4/#missing
     for (let i = 0; i < this.#coords.length; i += 1) {
-      if (isNaN(this.#coords[i])) {
+      if (this.#coords[i] === null || isNaN(this.#coords[i])) {
         this.#coords[i] = 0;
       }
     }
@@ -5618,6 +5617,8 @@ class XLCHPlanarSlidersElement extends HTMLElement {
       position: absolute;
       width: 100%;
       height: 100%;
+      overflow: hidden;
+      border-radius: inherit;
     }
 
     #planar-slider-gamut-svg {
@@ -6449,6 +6450,8 @@ class XLABPlanarSlidersElement extends HTMLElement {
       position: absolute;
       width: 100%;
       height: 100%;
+      overflow: hidden;
+      border-radius: inherit;
     }
 
     #planar-slider-gamut-svg {
@@ -7335,6 +7338,8 @@ class XXYZPlanarSlidersElement extends HTMLElement {
       position: absolute;
       width: 100%;
       height: 100%;
+      overflow: hidden;
+      border-radius: inherit;
     }
 
     #planar-slider-gamut-svg {
@@ -8398,10 +8403,10 @@ class XRGBPolarSlidersElement extends HTMLElement {
       this.#a = a;
     }
 
-    // Convert missing components from NaN to 0
+    // Convert missing components to 0
     // @doc https://www.w3.org/TR/css-color-4/#missing
     for (let i = 0; i < this.#coords.length; i += 1) {
-      if (isNaN(this.#coords[i])) {
+      if (this.#coords[i] === null || isNaN(this.#coords[i])) {
         this.#coords[i] = 0;
       }
     }

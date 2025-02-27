@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -97,7 +97,7 @@ export default class XStepperElement extends HTMLElement {
     #decrement-arrow-path {
       fill: currentColor;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -160,7 +160,9 @@ export default class XStepperElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.#updatePathData();
+    Xel.whenThemeReady.then(() => {
+      this.#updatePathData();
+    });
 
     Xel.addEventListener("themechange", this.#xelThemeChangeListener = () => this.#updatePathData());
 
@@ -182,8 +184,11 @@ export default class XStepperElement extends HTMLElement {
     }
   }
 
-  attributeChangedCallback(name) {
-    if (name === "disabled") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "disabled") {
       this.#onDisabledAttributeChange();
     }
   }

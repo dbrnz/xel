@@ -1,6 +1,6 @@
 
 // @copyright
-//   © 2016-2024 Jarosław Foksa
+//   © 2016-2025 Jarosław Foksa
 // @license
 //   MIT License (check LICENSE.md for details)
 
@@ -19,7 +19,7 @@ export default class XCheckboxElement extends HTMLElement {
 
   static #shadowTemplate = html`
     <template>
-      <main id="main">
+      <div id="main">
         <div id="indicator" part="indicator">
           <svg id="checkmark" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path id="checkmark-path"></path>
@@ -29,7 +29,7 @@ export default class XCheckboxElement extends HTMLElement {
         <div id="description">
           <slot></slot>
         </div>
-      </main>
+      </div>
     </template>
   `;
 
@@ -65,10 +65,10 @@ export default class XCheckboxElement extends HTMLElement {
       box-sizing: border-box;
       border: 2px solid currentColor;
       overflow: hidden;
-      --path-data: M -4 -4 L 100 -4 L 100 100 L -4 100 L -4 -4 Z M 95 23 L 86 13 L 37 66 L 13.6 41 L 4.5 51 L 37 85 L 95 23 Z;
+      --path-data: M 95 23 L 86 13 L 37 66 L 13.6 41 L 4.5 51 L 37 85 L 95 23 Z;
     }
     :host([mixed]) #indicator {
-      --path-data: M -4 -4 L 100 -4 L 100 100 L -4 100 L -4 -4 Z M 87 42.6 L 13 42.6 L 13 57.4 L 87 57.4 L 87 42.6 Z;
+      --path-data: M 87 42.6 L 13 42.6 L 13 57.4 L 87 57.4 L 87 42.6 Z;
     }
 
     /* Checkmark icon */
@@ -103,7 +103,7 @@ export default class XCheckboxElement extends HTMLElement {
     #description {
       flex: 1;
     }
-  `
+  `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -204,15 +204,20 @@ export default class XCheckboxElement extends HTMLElement {
       }
     }
 
-    this.#updateCheckmarkPathData();
+    Xel.whenThemeReady.then(() => {
+      this.#updateCheckmarkPathData();
+    });
   }
 
   disconnectedCallback() {
     Xel.removeEventListener("themechange", this.#xelThemeChangeListener);
   }
 
-  attributeChangedCallback(name) {
-    if (name === "toggled") {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    else if (name === "toggled") {
       this.#onToggledAttributeChange();
     }
     else if (name === "mixed") {
