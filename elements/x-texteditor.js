@@ -36,7 +36,7 @@ export default class XTextEditorElement extends HTMLElement {
       width: 100%;
       min-height: 100px;
       box-sizing: border-box;
-      font-size: 12.5px;
+      font-size: 0.78125rem;
       overflow: auto;
     }
     :host(:hover) {
@@ -487,6 +487,8 @@ export default class XTextEditorElement extends HTMLElement {
       this.mixed = false;
       this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
     }
+
+    (getBrowserEngine() === "chromium" ? this.#shadowRoot : window).getSelection().collapse(this["#main"]);
   }
 
   #onEditorClick(event) {

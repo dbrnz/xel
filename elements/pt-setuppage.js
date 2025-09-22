@@ -24,14 +24,21 @@ export default class PTSetupPageElement extends PTPage {
       background: var(--accent-color);
       border-radius: 80px;
       color: white;
-      font-size: 22px;
+      font-size: 1.375rem;
       font-weight: 500;
       line-height: 35px;
       text-align: center;
     }
 
+    :host([data-theme="/themes/fluent-dark.css"]),
+    :host([data-theme="/themes/material-dark.css"]) {
+      h3 > strong {
+        color: var(--background-color);
+      }
+    }
+
     h3 span.optional {
-      font-size: 20px;
+      font-size: 1.25rem;
       vertical-align: middle;
       opacity: 0.7;
     }

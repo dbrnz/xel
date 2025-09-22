@@ -36,13 +36,13 @@ export default class XTagsInputElement extends HTMLElement {
 
   static #shadowStyleSheet = css`
     :host {
-      display: block;
+      display: block flex;
       position: relative;
       box-sizing: border-box;
+      align-items: center;
       padding: 3px;
-      min-height: 32px;
       gap: 3px;
-      font-size: 12px;
+      font-size: 0.78125rem;
     }
     :host(:focus) {
       z-index: 10;
@@ -79,7 +79,7 @@ export default class XTagsInputElement extends HTMLElement {
 
     #input {
       width: 10px;
-      height: 16px;
+      height: 20px;
       margin: 2px;
       padding: 0px 3px 0 5px;
       box-sizing: border-box;

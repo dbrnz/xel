@@ -100,7 +100,7 @@ class XColorPickerElement extends HTMLElement {
 
     #space-select {
       min-width: 110px;
-      font-size: 13px;
+      font-size: 0.8125rem;
     }
 
     #space-select x-menuitem[data-warn] x-label::after {
@@ -115,7 +115,7 @@ class XColorPickerElement extends HTMLElement {
 
     #type-buttons x-button {
       margin-left: 4px;
-      min-height: 1px;;
+      min-height: 1px;
     }
 
     #type-buttons x-button x-icon {
@@ -136,10 +136,10 @@ class XColorPickerElement extends HTMLElement {
     #sliders {
       width: 100%;
     }
-    :host-context(x-popover) #sliders {
+    :host([context~="x-popover"]) #sliders {
       height: 250px;
     }
-    :host-context(x-popover):host([alpha]) #sliders {
+    :host([context~="x-popover"]):host([alpha]) #sliders {
       height: 290px;
     }
 
@@ -158,7 +158,6 @@ class XColorPickerElement extends HTMLElement {
       max-width: none;
       min-height: 1px;
       flex: 1;
-      font-size: 13px;
     }
     #input:focus {
       z-index: 1;
@@ -274,6 +273,13 @@ class XColorPickerElement extends HTMLElement {
     Xel.addEventListener("configchange", this.#configChangeListener = (event) => {
       this.#onConfigChange(event);
     });
+
+    if (this.parentElement?.localName === "x-popover") {
+      this.setAttribute("context", "x-popover");
+    }
+    else {
+      this.removeAttribute("context");
+    }
 
     this["#type-buttons"].value = Xel.getConfig(`${this.localName}:type`, "planar");
 
@@ -558,23 +564,26 @@ class XColorPickerElement extends HTMLElement {
   }
 
   #updateSpaceSelect(color = this.#getColor()) {
-    let allowedSpaces = this.spaces;
+    return new Promise(async (resolve) => {
+      let allowedSpaces = this.spaces;
 
-    this["#space-select"].value = color.spaceId;
+      await customElements.whenDefined("x-select");
+      this["#space-select"].value = color.spaceId;
 
-    if (allowedSpaces.length === 1) {
-      this["#space-select"].hidden = true;
-    }
-    else {
-      this["#space-select"].hidden = false;
-      this["#space-select"].disabled = this.disabled;
+      if (allowedSpaces.length === 1) {
+        this["#space-select"].hidden = true;
+      }
+      else {
+        this["#space-select"].hidden = false;
+        this["#space-select"].disabled = this.disabled;
 
-      for (let item of this["#space-select-menu"].children) {
-        if (item.localName === "x-menuitem") {
-          item.disabled = !allowedSpaces.includes(item.value);
+        for (let item of this["#space-select-menu"].children) {
+          if (item.localName === "x-menuitem") {
+            item.disabled = !allowedSpaces.includes(item.value);
+          }
         }
       }
-    }
+    });
   }
 
   #updateSpaceSelectWarningIcons() {
@@ -615,59 +624,65 @@ class XColorPickerElement extends HTMLElement {
   }
 
   #updateSliders(color = this.#getColor()) {
-    let type = this["#type-buttons"].value;
-    let space = color.spaceId;
-    let value = [...color.coords, color.alpha];
-    let localName;
+    return new Promise(async (resolve) => {
+      let type = this["#type-buttons"].value;
+      let space = color.spaceId;
+      let value = [...color.coords, color.alpha];
+      let localName;
 
-    if (["srgb", "srgb-linear", "a98rgb", "p3", "rec2020", "prophoto"].includes(space)) {
-      if (type === "linear") {
-        localName = "x-rgblinearsliders";
+      if (["srgb", "srgb-linear", "a98rgb", "p3", "rec2020", "prophoto"].includes(space)) {
+        if (type === "linear") {
+          localName = "x-rgblinearsliders";
+        }
+        else if (type === "planar") {
+          localName = "x-rgbplanarsliders";
+        }
+        else if (type === "polar") {
+          localName = "x-rgbpolarsliders";
+        }
       }
-      else if (type === "planar") {
-        localName = "x-rgbplanarsliders";
+      else if (space === "lch" || space === "oklch") {
+        if (type === "linear") {
+          localName = "x-lchlinearsliders";
+        }
+        else if (type === "planar") {
+          localName = "x-lchplanarsliders";
+        }
       }
-      else if (type === "polar") {
-        localName = "x-rgbpolarsliders";
+      else if (space === "lab" || space === "oklab") {
+        if (type === "linear") {
+          localName = "x-lablinearsliders";
+        }
+        else if (type === "planar") {
+          localName = "x-labplanarsliders";
+        }
       }
-    }
-    else if (space === "lch" || space === "oklch") {
-      if (type === "linear") {
-        localName = "x-lchlinearsliders";
+      else if (space === "xyz-d65" || space === "xyz-d50") {
+        if (type === "linear") {
+          localName = "x-xyzlinearsliders";
+        }
+        else if (type === "planar") {
+          localName = "x-xyzplanarsliders";
+        }
       }
-      else if (type === "planar") {
-        localName = "x-lchplanarsliders";
-      }
-    }
-    else if (space === "lab" || space === "oklab") {
-      if (type === "linear") {
-        localName = "x-lablinearsliders";
-      }
-      else if (type === "planar") {
-        localName = "x-labplanarsliders";
-      }
-    }
-    else if (space === "xyz-d65" || space === "xyz-d50") {
-      if (type === "linear") {
-        localName = "x-xyzlinearsliders";
-      }
-      else if (type === "planar") {
-        localName = "x-xyzplanarsliders";
-      }
-    }
 
-    if (this["#main"].firstElementChild?.localName !== localName) {
-      this["#main"].innerHTML = "";
-      this["#sliders"] = createElement(localName);
-      this["#sliders"].setAttribute("id", "sliders");
-      this["#sliders"].setAttribute("exportparts", "slider");
-      this["#main"].append(this["#sliders"]);
-    }
+      if (this["#main"].firstElementChild?.localName !== localName) {
+        this["#main"].innerHTML = "";
+        this["#sliders"] = createElement(localName);
+        this["#sliders"].setAttribute("id", "sliders");
+        this["#sliders"].setAttribute("exportparts", "slider");
+        this["#main"].append(this["#sliders"]);
+      }
 
-    this["#sliders"].space = space;
-    this["#sliders"].value = value;
-    this["#sliders"].alpha = this.alpha;
-    this["#sliders"].disabled = this.disabled;
+      await customElements.whenDefined(localName);
+
+      this["#sliders"].space = space;
+      this["#sliders"].value = value;
+      this["#sliders"].alpha = this.alpha;
+      this["#sliders"].disabled = this.disabled;
+
+      resolve();
+    });
   }
 
   #updateInput(color = this.#getColor()) {
@@ -874,7 +889,7 @@ class XRGBLinearSlidersElement extends HTMLElement {
       color: rgba(255, 255, 255, 0.9);
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
-      font-size: 18px;
+      font-size: 1.125rem;
     }
 
     .slider-gamut-svg {
@@ -894,7 +909,7 @@ class XRGBLinearSlidersElement extends HTMLElement {
     .slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
 
     /**
@@ -2096,7 +2111,7 @@ class XLCHLinearSlidersElement extends HTMLElement {
       color: rgba(255, 255, 255, 0.9);
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
-      font-size: 18px;
+      font-size: 1.125rem;
     }
 
     .slider-gamut-svg {
@@ -2116,7 +2131,7 @@ class XLCHLinearSlidersElement extends HTMLElement {
     .slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
 
     /**
@@ -2931,7 +2946,7 @@ class XLABLinearSlidersElement extends HTMLElement {
       color: rgba(255, 255, 255, 0.9);
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
-      font-size: 18px;
+      font-size: 1.125rem;
     }
 
     .slider-gamut-svg {
@@ -2951,7 +2966,7 @@ class XLABLinearSlidersElement extends HTMLElement {
     .slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
 
     /**
@@ -3825,13 +3840,13 @@ class XXYZLinearSlidersElement extends HTMLElement {
       color: rgba(255, 255, 255, 0.9);
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
-      font-size: 18px;
+      font-size: 1.125rem;
     }
 
     .slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
 
     .slider-gamut-svg {
@@ -4626,7 +4641,7 @@ class XRGBPlanarSlidersElement extends HTMLElement {
       color: rgba(255, 255, 255, 0.9);
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
-      font-size: 18px;
+      font-size: 1.125rem;
     }
 
     #hue-slider-gamut-svg {
@@ -4646,7 +4661,7 @@ class XRGBPlanarSlidersElement extends HTMLElement {
     #hue-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
 
     /**
@@ -4683,7 +4698,7 @@ class XRGBPlanarSlidersElement extends HTMLElement {
       position: absolute;
       top: -30px;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 18px;
+      font-size: 1.125rem;
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
     }
@@ -4756,7 +4771,7 @@ class XRGBPlanarSlidersElement extends HTMLElement {
     #alpha-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
   `;
 
@@ -5551,7 +5566,7 @@ class XLCHPlanarSlidersElement extends HTMLElement {
       color: rgba(255, 255, 255, 0.9);
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
-      font-size: 18px;
+      font-size: 1.125rem;
     }
 
     #hue-slider-gamut-svg {
@@ -5571,7 +5586,7 @@ class XLCHPlanarSlidersElement extends HTMLElement {
     #hue-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
 
     /**
@@ -5608,7 +5623,7 @@ class XLCHPlanarSlidersElement extends HTMLElement {
       position: absolute;
       top: -30px;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 18px;
+      font-size: 1.125rem;
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
     }
@@ -5692,7 +5707,7 @@ class XLCHPlanarSlidersElement extends HTMLElement {
     #alpha-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
   `;
 
@@ -6384,7 +6399,7 @@ class XLABPlanarSlidersElement extends HTMLElement {
       color: rgba(255, 255, 255, 0.9);
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
-      font-size: 18px;
+      font-size: 1.125rem;
     }
 
     #lightness-slider-gamut-svg {
@@ -6404,7 +6419,7 @@ class XLABPlanarSlidersElement extends HTMLElement {
     #lightness-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
 
     /**
@@ -6441,7 +6456,7 @@ class XLABPlanarSlidersElement extends HTMLElement {
       position: absolute;
       top: -30px;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 18px;
+      font-size: 1.125rem;
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
     }
@@ -6525,7 +6540,7 @@ class XLABPlanarSlidersElement extends HTMLElement {
     #alpha-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
   `;
 
@@ -7272,7 +7287,7 @@ class XXYZPlanarSlidersElement extends HTMLElement {
       color: rgba(255, 255, 255, 0.9);
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
-      font-size: 18px;
+      font-size: 1.125rem;
     }
 
     #linear-slider-gamut-svg {
@@ -7292,7 +7307,7 @@ class XXYZPlanarSlidersElement extends HTMLElement {
     #linear-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
 
     /**
@@ -7329,7 +7344,7 @@ class XXYZPlanarSlidersElement extends HTMLElement {
       position: absolute;
       top: -30px;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 18px;
+      font-size: 1.125rem;
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
     }
@@ -7413,7 +7428,7 @@ class XXYZPlanarSlidersElement extends HTMLElement {
     #alpha-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
   `;
 
@@ -8235,7 +8250,7 @@ class XRGBPolarSlidersElement extends HTMLElement {
       position: absolute;
       top: -30px;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 18px;
+      font-size: 1.125rem;
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
     }
@@ -8307,7 +8322,7 @@ class XRGBPolarSlidersElement extends HTMLElement {
       color: rgba(255, 255, 255, 0.9);
       filter: drop-shadow(1px 1px 1px black);
       pointer-events: none;
-      font-size: 18px;
+      font-size: 1.125rem;
     }
 
     #linear-slider-gamut-svg {
@@ -8327,7 +8342,7 @@ class XRGBPolarSlidersElement extends HTMLElement {
     #linear-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
 
     /**
@@ -8384,7 +8399,7 @@ class XRGBPolarSlidersElement extends HTMLElement {
     #alpha-slider-label {
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
+      font-size: 0.625rem;
     }
   `;
 

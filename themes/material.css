@@ -20,6 +20,7 @@
   background-color: var(--background-color);
   font-family: "Roboto Flex", "Roboto", "Helvetica Neue", "Noto Sans", "Arial", sans-serif;
   font-weight: 400;
+  --theme-id:                  "material";
   --preset-accent-colors:       blue     lch(39.4 36.3 272),
                                 purple   lch(39.7 39.4 303),
                                 pink     lch(39.9 35.8 329),
@@ -39,10 +40,10 @@
   --autofill-background-color:  color(srgb 0.95 0.93 0.89);
   --titlebar-color:             auto;
   --autocapitalize:             titlecase;
-  --checkboard-background:      linear-gradient( 45deg, #dedede 25%, #0000   25%)  0px  0px / 10px 10px,
-                                linear-gradient(-45deg, #dedede 25%, #0000   25%)  0px  5px / 10px 10px,
-                                linear-gradient( 45deg, #0000   75%, #dedede 75%)  5px -5px / 10px 10px,
-                                linear-gradient(-45deg, #0000   75%, #dedede 75%) -5px  0px / 10px 10px, #ffffff;
+  --checkboard-background:      linear-gradient( 45deg, #ffffff 25%, #0000   25%)  0px  0px / 10px 10px,
+                                linear-gradient(-45deg, #ffffff 25%, #0000   25%)  0px  5px / 10px 10px,
+                                linear-gradient( 45deg, #0000   75%, #ffffff 75%)  5px -5px / 10px 10px,
+                                linear-gradient(-45deg, #0000   75%, #ffffff 75%) -5px  0px / 10px 10px, var(--material-surface-dim-color);
   --arrow-right-path-data: M 29.88 90.25 L 29.88 9.75 L 70.12 50 L 29.88 90.25 Z;
   --arrow-up-path-data: M 9.75 70.12 L 90.25 70.12 L 50 29.88 L 9.75 70.12 Z;
   --arrow-down-path-data: M 9.75 29.88 L 90.25 29.88 L 50 70.12 L 9.75 29.88 Z;
@@ -136,7 +137,6 @@ table {
   border-radius: 8px;
   border-style: hidden;
   box-shadow: 0 0 0 1px var(--material-outline-variant-color);
-  overflow: hidden;
 }
 
 th, td {
@@ -162,6 +162,7 @@ th, td {
  * Scrollbar
  */
 
+/* Chromium, WebKit */
 ::-webkit-scrollbar {
   background-color: transparent;
 }
@@ -171,6 +172,13 @@ th, td {
 }
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--material-outline-color);
+}
+
+/* Gecko */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-color: var(--material-outline-variant-color) transparent;
+  }
 }
 
 /*****************************************************************************************************************/
@@ -339,7 +347,7 @@ x-button[skin="normal"] {
     border-style: solid;
     border-width: 1px;
     border-color: var(--material-outline-color);
-    border-radius: 40px;
+    border-radius: 10px;
   }
   &[toggled] {
     color: var(--material-on-primary-color);
@@ -454,7 +462,7 @@ x-button[skin="recessed"] {
 
   /* Label */
   & > x-label {
-    font-size: 12px;
+    font-size: 0.75rem;
     text-align: center;
   }
 }
@@ -515,6 +523,9 @@ x-tag:focus {
   outline-color: var(--material-primary-color);
   outline-offset: -1px;
 }
+x-tag[scoped]::part(main) {
+  background-color: var(--material-surface-container-low-color);
+}
 x-tag[toggled] {
   color: var(--material-on-primary-color);
   background-color: var(--material-primary-color);
@@ -555,11 +566,10 @@ x-tag::part(remove-button) {
 
 /* Scope prefix */
 x-tag::part(scope) {
-  background-color: var(--material-surface-bright-color);
   border-color: var(--material-outline-variant-color);
 }
 x-tag[toggled]::part(scope) {
-  color: var(--material-on-surface-color);;
+  color: var(--material-on-surface-color);
   border-color: var(--material-primary-color);
 }
 
@@ -763,6 +773,10 @@ x-menuitem[expanded] {
 }
 x-menuitem[pressed] {
   background-color: oklch(from var(--material-on-surface-color) l c h / 0.1);
+}
+x-menuitem[highlighted] {
+  color: var(--material-on-primary-color);
+  background: var(--material-primary-color);
 }
 
 /* Checkmark */
@@ -1215,36 +1229,24 @@ x-select::part(arrow) {
 
 /* Groove track */
 x-slider::part(groove-track) {
-  height: 50%;
+  height: 6px;
   background-color: var(--material-secondary-container-color);
   border-radius: 99px;
 }
 
 /* Range track */
 x-slider::part(range-track) {
-  height: 50%;
+  height: 6px;
   background-color: var(--material-primary-color);
-  border-radius: 99px;
-  clip-path: polygon(0% 0%, calc(100% - 6px) 0%, calc(100% - 6px) 100%, 0 100%);
-}
-x-slider[value*="-"]::part(range-track) {
-  clip-path: polygon(6px 0, 100% 0, 100% 100%, 6px 100%);
-}
-x-slider[range]::part(range-track) {
-  clip-path: polygon(6px 0%, calc(100% - 6px) 0%, calc(100% - 6px) 100%, 6px 100%);
+  border-radius: 5px;
 }
 
 /* Thumbs */
-x-slider::part(thumbs) {
-  width: 100%;
-}
 x-slider::part(thumb) {
-  width: 4px;
-  height: 120%;
-  top: -10%;
+  width: 5px;
   background-color: var(--material-primary-color);
-  border-width: 0px;
-  border-radius: 99px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 4px 0px color(srgb 0 0 0 / 0.1);
 }
 x-slider::part(thumb):focus {
   outline-width: 3px;
@@ -1253,22 +1255,16 @@ x-slider::part(thumb):focus {
   outline-offset: 3px;
 }
 
-/* Stops */
-x-slider::part(stop) {
+/* Ticks */
+x-slider::part(tick) {
   top: 50%;
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
   transform: translate(-50%, -50%);
   background-color: var(--material-primary-color);
   border-radius: 99px;
 }
-x-slider::part(first-stop) {
-  margin-left: 4px;
-}
-x-slider::part(last-stop) {
-  margin-left: -4px;
-}
-x-slider::part(range-stop) {
+x-slider::part(range-tick) {
   background-color: var(--material-on-surface-inverse-color);
 }
 

@@ -328,6 +328,7 @@ export default class PTAppElement extends HTMLElement {
             <x-navitem>
               <x-icon href="#calendar"></x-icon>
               <x-label><x-message href="#changelog" autocapitalize></x-message></x-label>
+              <x-tag id="version-tag"><x-label id="version-label"></x-label></x-tag>
             </x-navitem>
           </a>
 
@@ -449,7 +450,7 @@ export default class PTAppElement extends HTMLElement {
 
     #header h1 {
       margin: 0 0 0 4px;
-      font-size: 24px;
+      font-size: 1.5rem;
       line-height: 1;
     }
 
@@ -523,7 +524,7 @@ export default class PTAppElement extends HTMLElement {
     #branding h1 {
       margin: 0 0 0 6px;
       line-height: 1;
-      font-size: 34px;
+      font-size: 2.125rem;
       font-weight: 700;
     }
 
@@ -538,6 +539,14 @@ export default class PTAppElement extends HTMLElement {
       cursor: pointer;
     }
 
+    #nav #version-tag {
+      pointer-events: none;
+    }
+
+    #nav #version-tag > x-label {
+      font-size: 0.65rem;
+    }
+
     /* Settings */
 
     #settings {
@@ -550,7 +559,7 @@ export default class PTAppElement extends HTMLElement {
     #copyright {
       padding: 12px 20px;
       line-height: 1;
-      font-size: 11px;
+      font-size: 0.6875rem;
     }
 
     #copyright a {
@@ -658,13 +667,22 @@ export default class PTAppElement extends HTMLElement {
     window.addEventListener("popstate", (event) => this.#onPopState(event));
     window.addEventListener("beforeunload", (event) => this.#onWindowBeforeUnload(event));
 
+    Xel.addEventListener("themechange", (event) => this.#updateForThemeChange());
+
     this.#shadowRoot.addEventListener("pointerdown", (event) => this.#onShadowRootPointerDown(event));
     this.#shadowRoot.addEventListener("click", (event) => this.#onShadowRootClick(event), true);
     this["#main"].addEventListener("wheel", (e) => this.#onMainWheel(e), {passive: true});
 
     this.#updateForLayoutChange();
+    this.#updateForThemeChange();
     await this.#updateForLocationChange();
     this.#maybeDispatchLocationChangeEvent("load");
+
+    // Update the version tag
+    if (this["#version-label"].textContent === "") {
+      let manifest = await (await fetch("/package.json")).json();
+      this["#version-label"].textContent = manifest.version;
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -929,6 +947,10 @@ export default class PTAppElement extends HTMLElement {
 
       resolve();
     });
+  }
+
+  #updateForThemeChange() {
+    document.documentElement.setAttribute("data-theme", Xel.theme);
   }
 
   #updateForLayoutChange() {

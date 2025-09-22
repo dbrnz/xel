@@ -21,6 +21,7 @@
   color: var(--text-color);
   background-color: var(--background-color);
   font-family: "Adwaita Sans", "Inter", "Roboto Flex", "Roboto", "Noto Sans", "Helvetica Neue", "Arial", sans-serif;
+  --theme-id:                   "adwaita-dark";
   --preset-accent-colors:       blue     color(srgb 0.21 0.52 0.89),
                                 purple   color(srgb 0.57 0.25 0.67),
                                 pink     color(srgb 0.97 0.31 0.62),
@@ -88,7 +89,7 @@ a:hover {
 
 pre, code, var {
   background-color: color(srgb 1 1 1 / 0.06);
-  font-family: "Adwaita Mono", "Iosevka", ui-monospace, monospace;;
+  font-family: "Adwaita Mono", "Iosevka", ui-monospace, monospace;
 }
 pre {
   border-radius: 12px;
@@ -114,7 +115,6 @@ table {
   border-radius: 8px;
   border-style: hidden;
   box-shadow: 0 0 0 1px var(--border-color);
-  overflow: hidden;
 }
 
 th, td {
@@ -140,6 +140,7 @@ th, td {
  * Scrollbar
  */
 
+/* Chromium, WebKit */
 ::-webkit-scrollbar {
   background-color: transparent;
 }
@@ -171,6 +172,13 @@ th, td {
 ::-webkit-scrollbar-thumb:hover {
   background-color: color(srgb 0.48 0.48 0.48);
   border-radius: 4px;
+}
+
+/* Gecko */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-color: color(srgb 1 1 1 / 0.25) transparent;
+  }
 }
 
 /*****************************************************************************************************************/
@@ -431,7 +439,7 @@ x-button[skin="recessed"] {
 
   /* Label */
   & > x-label {
-    font-size: 12px;
+    font-size: 0.75rem;
     text-align: center;
   }
 }
@@ -701,6 +709,10 @@ x-menubar > x-menuitem,
 x-menubar > x-menuitem[size="small"],
 x-menubar > x-menuitem[size="large"] {
   height: calc(100% - 6px);
+}
+x-menubar > x-menuitem[highlighted] {
+  color: color(srgb 1 1 1);
+  background-color: var(--accent-color);
 }
 
 /*****************************************************************************************************************/
@@ -999,8 +1011,8 @@ x-slider::part(thumb):focus {
   box-shadow: 0 0 0px 3px var(--lighter-accent-color);
 }
 
-/* Stops */
-x-slider::part(stop) {
+/* Ticks */
+x-slider::part(tick) {
   background-color: color(srgb 1 1 1 / 0.5);
 }
 
@@ -1051,6 +1063,9 @@ x-numberinput:focus {
   outline-color: var(--light-accent-color);
   outline-offset: -1px;
 }
+x-numberinput:focus:has(x-stepper) {
+  padding-right: 20px; /* Stepper width */
+}
 x-numberinput[error] {
   background-color: var(--error-background-color);
   outline-width: 2px;
@@ -1062,7 +1077,7 @@ x-numberinput[error] {
 
 /* Placeholder */
 x-numberinput > x-label {
-  color: color(srgb 0 0 0 / 0.4);
+  color: color(srgb 1 1 1 / 0.4);
   font-weight: 600;
 }
 

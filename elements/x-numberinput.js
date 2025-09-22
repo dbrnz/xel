@@ -43,7 +43,7 @@ export default class XNumberInputElement extends HTMLElement {
       max-width: 160px;
       height: 32px;
       box-sizing: border-box;
-      font-size: 12.5px;
+      font-size: 0.78125rem;
       line-height: 10;
       --inner-padding: 0 6px;
     }
@@ -93,6 +93,12 @@ export default class XNumberInputElement extends HTMLElement {
       line-height: inherit;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    :host(:focus) #editor {
+      overflow: visible;
+      text-overflow: clip;
     }
     :host([disabled]) #editor {
       user-select: none;
@@ -545,7 +551,7 @@ export default class XNumberInputElement extends HTMLElement {
   }
 
   #onFocusOut() {
-    if (getBrowserEngine() !== "webkit") {
+    if (getBrowserEngine() === "chromium") {
       this.#shadowRoot.getSelection().collapse(this["#main"]);
     }
 

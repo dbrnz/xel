@@ -1,6 +1,135 @@
 
 # CHANGELOG
 
+## 0.36.2 (2025-07-28)
+
+- [Fixed] `<x-menubar>` fails to update correctly on Firefox when using `slot="aside"`
+
+## 0.36.1 (2025-07-16)
+
+- [Fixed] `<x-icon>` does not render shapes with gradient fill
+
+## 0.36.0 (2025-07-12)
+
+- Add `aside` named slot to `<x-menubar>`
+- Switch to "Midline Horizontal Ellipsis" char for `<x-menubar>` ellipsis
+- [Fixed] `<x-menubar>` layout fails to update when changing locales
+
+## 0.35.2 (2025-06-22)
+
+- [Fixed] `<x-contextmenu>` stops some pointer events from firing when using touch input method
+
+## 0.35.1 (2025-06-21)
+
+- [Fixed] `event.isPrimary` is not preserved when firing synthesized `lostpointercapture` event
+
+## 0.35.0 (2025-06-17)
+
+- Add `Xel.configStorage` property
+
+## 0.34.7 (2025-06-13)
+
+- Increase the interval time between subsequent menubar updates
+
+## 0.34.6 (2025-06-12)
+
+- [Fixed] Material theme subthemes have incorrect colors unless the subtheme file name starts with "material"
+
+## 0.34.5 (2025-06-09)
+
+- [Fixed] `<x-menubar>` fails to update in some edge cases
+
+## 0.34.4 (2025-06-02)
+
+- [Fixed] `<x-menubar>` ellipsis might overflow the window bounds
+
+## 0.34.3 (2025-06-02)
+
+- [Fixed] `<x-colorpicker>` fails to update on initial document load
+
+## 0.34.2 (2025-05-28)
+
+- [Fixed] `<x-menubar>` fails to update in some edge cases
+
+## 0.34.1 (2025-05-28)
+
+- [Fixed] Error thrown when updating `<x-menubar>` with no children
+
+## 0.34.0 (2025-05-28)
+
+- Show ellipsis when top level menubar items can't be fitted on the screen
+- [Fixed] `<x-menubar>` children without submenus should behave like buttons
+
+## 0.33.13 (2025-05-13)
+
+- [Fixed] Menu item labels are cut off on Linux
+
+## 0.33.12 (2025-05-04)
+
+- Don't include packaging scripts in the NPM package
+
+## 0.33.11 (2025-05-04)
+
+- Refactor packaging scripts
+
+## 0.33.10 (2025-04-15)
+
+- [Fixed] `<dialog>` element permanently overrides the `overflow` inline style on `<html>` and `<body>`
+
+## 0.33.9 (2025-04-11)
+
+- Show ellipsis when `<x-numberinput>` value overflow the visible area
+
+## 0.33.8 (2025-03-31)
+
+- [Fixed] Error thrown when attempting to close a disconnected `<x-contextmenu>`
+
+## 0.33.7 (2025-03-22)
+
+- [Fixed] `<x-drawer>` has wrong position on Firefox and Safari
+- [Fixed] Can't expand menus when using touch input method
+
+## 0.33.6 (2025-03-21)
+
+- Highlight top level menu item when its descendant was triggered programmatically
+- [Fixed] `<x-slider>` has incorrect width on WebKit-based browsers
+
+## 0.33.5 (2025-03-19)
+
+- [Fixed] Titlebar color is not properly updated when changing the accent color of Material themes
+
+## 0.33.4 (2025-03-19)
+
+- Simplify slider stylings in Material themes
+- [Fixed] Material themes don't allow gray accent color
+
+## 0.33.3 (2025-03-15)
+
+- [Fixed] `<x-select>` has wrong z-index in some edge cases
+- [Fixed] Error throw when connecting some elements directly to ShadowRoot
+- [Fixed] Scrollbars are not styled on Firefox
+- [Fixed] Color picker popover changes position when switching between tabs on WebKit-based web browsers
+- [Fixed] Error thrown when `<x-numberinput>` loses focus
+- [Fixed] Current text selection should be cleared when `<x-texteditor>` loses focus
+
+## 0.33.2 (2025-03-06)
+
+- Change font size units from "px" to "rem"
+- [Fixed] `<x-tagsinput>` padding changes when entering values
+
+## 0.33.1 (2025-03-03)
+
+- [Fixed] Nested CSS rules are crashing Safari 18.3
+
+## 0.33.0 (2025-03-02)
+
+- Add `ticks` property to `<x-slider>`
+- Support setting `border-radius` on `<table>` elements
+- [Fixed] Text selection contrast is too low (Fluent Dark theme)
+- [Fixed] `<x-stepper>` inside `<x-numberinput>` is too large (Fluent themes)
+- [Fixed] `<x-drawer>` background is white instead of black (Fluent Dark theme)
+- [Fixed] `<x-numberinput>` placeholder text has wrong color (Adwaita Dark theme)
+
 ## 0.32.2 (2025-02-27)
 
 - [Fixed] `<x-nav>` dispatches the "toggle" event too early

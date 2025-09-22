@@ -5,9 +5,13 @@
 //   MIT License (check LICENSE.md for details)
 
 import Xel from "../classes/xel.js";
+
+import {compareArrays} from "../utils/array.js";
 import {html, css} from "../utils/template.js";
+import {throttle, sleep} from "../utils/time.js";
 
 const DEBUG = false;
+const $menu = Symbol();
 
 // @element x-menubar
 // @event expand
@@ -21,7 +25,15 @@ export default class XMenuBarElement extends HTMLElement {
         <path id="backdrop-path"></path>
       </svg>
 
-      <slot></slot>
+      <x-box id="container">
+        <div id="main">
+          <slot></slot>
+        </div>
+
+        <div id="aside">
+          <slot name="aside"></slot>
+        </div>
+      </x-box>
     </template>
   `;
 
@@ -62,6 +74,30 @@ export default class XMenuBarElement extends HTMLElement {
       opacity: 0;
       pointer-events: all;
     }
+
+    #container {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+    }
+
+    #main {
+      display: flex;
+      align-items: center;
+      width: fit-content;
+      height: 100%;
+    }
+
+    #aside {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    ::slotted(x-menuitem[ellipsis]) {
+      order: 9999;
+    }
   `;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +128,7 @@ export default class XMenuBarElement extends HTMLElement {
   #shadowRoot = null;
   #expanded = false;
   #orientationChangeListener = null;
+  #childListMutationObserver = null;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -106,7 +143,14 @@ export default class XMenuBarElement extends HTMLElement {
       this["#" + element.id] = element;
     }
 
+    new ResizeObserver(() => this.#onContainerResize()).observe(this["#container"], {box : "border-box"});
+    new ResizeObserver(() => this.#onMainResize()).observe(this["#main"], {box : "border-box"});
+
+    this.#childListMutationObserver = new MutationObserver((event) => this.#onChildListchange());
+    this.#childListMutationObserver.observe(this, {childList: true});
+
     this.addEventListener("focusout", (event) => this.#onFocusOut(event));
+    this.addEventListener("click", (event) => this.#onClick(event));
     this.#shadowRoot.addEventListener("click", (event) => this.#onShadowRootClick(event));
     this.#shadowRoot.addEventListener("pointerdown", (event) => this.#onShadowRootPointerDown(event));
     this.#shadowRoot.addEventListener("pointerover", (event) => this.#onShadowRootPointerOver(event));
@@ -117,6 +161,8 @@ export default class XMenuBarElement extends HTMLElement {
   connectedCallback() {
     this.setAttribute("role", "menubar");
     this.setAttribute("aria-disabled", this.disabled);
+
+    this.#updateMenubarLayout();
 
     window.addEventListener("orientationchange", this.#orientationChangeListener = () => {
       this.#onOrientationChange();
@@ -138,6 +184,117 @@ export default class XMenuBarElement extends HTMLElement {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  #updateMenubarLayout() {
+    // Ensure that ellipsis item exists and it is assigned to the default slot
+    {
+      let ellipsisItem = this.querySelector(":scope > x-menuitem[ellipsis]");
+
+      if (!ellipsisItem) {
+        ellipsisItem = html`
+          <x-menuitem ellipsis>
+            <x-label><strong>⋯</strong></x-label>
+            <x-menu id="ellipsis-menu"></x-menu>
+          </x-menuitem>
+        `;
+
+        this.append(ellipsisItem);
+      }
+      else if (ellipsisItem.hasAttribute("slot")) {
+        ellipsisItem.removeAttribute("slot");
+      }
+    }
+
+    let mainItems = [...this.children].filter($0 => $0.localName === "x-menuitem" && $0.slot === "");
+    let ellipsisItem = mainItems.find(item => item.hasAttribute("ellipsis"));
+    let oldAutohiddenItems = [];
+
+    // Unhide all items
+    {
+      for (let item of mainItems) {
+        if (item.hasAttribute("autohidden")) {
+          oldAutohiddenItems.push(item);
+          item.removeAttribute("autohidden");
+        }
+      }
+    }
+
+    let menubarBBox = this.getBoundingClientRect();
+    let asideBBox = this["#aside"].getBoundingClientRect();
+    let overflowingItems = [];
+
+    // Determine overflowing items
+    {
+      for (let i = 0; i < mainItems.length; i += 1) {
+        let item = mainItems[i];
+        let itemBBox = item.getBoundingClientRect();
+
+        if (itemBBox.right > menubarBBox.right - asideBBox.width) {
+          overflowingItems.push(item);
+        }
+      }
+    }
+
+    // If there are no overflowing items, hide only the ellipsis item
+    if (overflowingItems.length <= 1) {
+      ellipsisItem.setAttribute("autohidden", "");
+    }
+    // Otherwise keep hiding non-ellipsis items until the ellipsis item no longer overflows
+    else {
+      for (let item of [...mainItems].reverse()) {
+        if (item !== ellipsisItem) {
+          item.setAttribute("autohidden", "");
+
+          let ellipsisItemBBox = ellipsisItem.getBoundingClientRect();
+
+          if (ellipsisItemBBox.right <= menubarBBox.right - asideBBox.width) {
+            break;
+          }
+        }
+      }
+    }
+
+    // Update ellipsis menu
+    {
+      let autohiddenItems = [...this.querySelectorAll(":scope > x-menuitem[autohidden]")];
+
+      if (compareArrays(autohiddenItems, oldAutohiddenItems, true) === false) {
+        let ellipsisMenu = ellipsisItem.querySelector("x-menu");
+        ellipsisMenu.innerHTML = "";
+
+        for (let item of mainItems) {
+          if (item !== ellipsisItem) {
+            if (!item[$menu]) {
+              item[$menu] = item.querySelector(":scope > x-menu");
+            }
+
+            if (autohiddenItems.includes(item)) {
+              let clonedItem = item.cloneNode(false);
+
+              for (let child of item.children) {
+                if (child.localName !== "x-menu") {
+                  clonedItem.append(child.cloneNode(true));
+                }
+              }
+
+              if (item[$menu]) {
+                clonedItem.append(item[$menu]);
+              }
+
+              ellipsisMenu.append(clonedItem);
+            }
+            else {
+              if (item[$menu] && item[$menu].parentElement !== item) {
+                item.append(item[$menu]);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  #updateMenubarLayoutThrottled = throttle(this.#updateMenubarLayout, 100, this);
+
   #expandMenubarItem(item) {
     let menu = item.querySelector(":scope > x-menu");
 
@@ -146,7 +303,12 @@ export default class XMenuBarElement extends HTMLElement {
 
       item.focus();
       this.#expanded = true;
+
       this.style.touchAction = "none";
+
+      if (item.slot !== "aside") {
+        this["#aside"].style.pointerEvents = "none";
+      }
 
       // Open item's menu and close other menus
       {
@@ -192,7 +354,9 @@ export default class XMenuBarElement extends HTMLElement {
       let wasExpanded = this.#expanded;
 
       this.#expanded = false;
+
       this.style.touchAction = null;
+      this["#aside"].style.pointerEvents = null;
 
       // Hide the backdrop
       {
@@ -261,11 +425,55 @@ export default class XMenuBarElement extends HTMLElement {
     this.#collapseMenubarItems();
   }
 
+  #onContainerResize() {
+    if (this.isConnected) {
+      this.#updateMenubarLayoutThrottled();
+    }
+  }
+
+  #onMainResize() {
+    if (this.isConnected) {
+      this.#updateMenubarLayoutThrottled();
+    }
+  }
+
+  #onChildListchange() {
+    if (this.isConnected) {
+      this.#updateMenubarLayoutThrottled();
+    }
+  }
+
   #onShadowRootWheel(event) {
     let openedMenu = this.querySelector("x-menu[opened]");
 
     if (openedMenu && openedMenu.contains(event.target) === false) {
       event.preventDefault();
+    }
+  }
+
+  async #onClick(event) {
+    let item = event.target.closest("x-menuitem");
+
+    // Click triggered by calling element.click()
+    if (item && event.isTrusted === false) {
+      if (event.isTrusted === false) {
+        if (!item.closest("[expanded]")) {
+          let outermostItem = null;
+
+          for (let element = item; element !== this; element = element.parentElement) {
+            if (element.localName === "x-menuitem") {
+              outermostItem = element;
+            }
+          }
+
+          // Blink menubar item
+          {
+            outermostItem.setAttribute("highlighted", "");
+            await sleep(150);
+            outermostItem.removeAttribute("highlighted");
+          }
+        }
+      }
     }
   }
 
@@ -316,6 +524,9 @@ export default class XMenuBarElement extends HTMLElement {
 
       if (submenu) {
         submenu.opened ? this.#collapseMenubarItems() : this.#expandMenubarItem(item);
+      }
+      else {
+        event.preventDefault();
       }
     }
   }

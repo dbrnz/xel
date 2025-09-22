@@ -17,7 +17,6 @@
   height: 100%;
   margin: 0;
   interpolate-size: allow-keywords;
-  font-size: 16px;
   font-family: sans-serif;
   line-height: 1.6;
 }
@@ -35,7 +34,7 @@ h1 {
   margin: 22px 0 16px;
   box-sizing: border-box;
   line-height: 1;
-  font-size: 52px;
+  font-size: 3.25rem;
   font-weight: 700;
 }
 
@@ -43,7 +42,7 @@ h2 {
   margin: 18px 0 14px 0;
   box-sizing: border-box;
   line-height: 1;
-  font-size: 34px;
+  font-size: 2.125rem;
   font-weight: 700;
 }
 
@@ -51,7 +50,7 @@ h3 {
   margin: 16px 0 12px 0;
   box-sizing: border-box;
   line-height: 1.2;
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: 700;
 }
 
@@ -59,7 +58,7 @@ h4 {
   margin: 14px 0 10px 0;
   box-sizing: border-box;
   line-height: 1.1;
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
@@ -67,7 +66,7 @@ h5 {
   margin: 12px 0 8px 0;
   box-sizing: border-box;
   line-height: 1.1;
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 700;
 }
 
@@ -75,7 +74,7 @@ h6 {
   margin: 8px 0 5px 0;
   box-sizing: border-box;
   line-height: 1.1;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
 }
 
@@ -115,18 +114,23 @@ a {
 /* Tables */
 
 table {
-  border-collapse: collapse;
   width: 100%;
   margin: 16px 0;
+  border-collapse: collapse;
+  /* Needed to make "border-radius" property work */
+  border-style: hidden;
+  box-shadow: 0 0 0 1px var(--border-color);
 }
 
 th {
   text-align: start;
   padding: 8px 14px;
+  border-spacing: 0;
 }
 
 td {
   padding: 8px 14px;
+  border-spacing: 0;
 }
 
 /* Markers */
@@ -240,19 +244,31 @@ img:active {
   cursor: -webkit-grabbing;
 }
 
+[popover] {
+  color: var(--text-color);
+  background-color: var(--foreground-color);
+}
+
 /*****************************************************************************************************************/
 
 /**
  * Scrollbar
  */
 
+/* Chromium, WebKit */
 ::-webkit-scrollbar {
   max-width: 6px;
   max-height: 6px;
 }
-
 ::-webkit-scrollbar-corner {
   display: none
+}
+
+/* Gecko */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+  }
 }
 
 /*****************************************************************************************************************/
@@ -334,14 +350,14 @@ x-avatar > x-icon {
 
 /* Placeholder text */
 x-avatar > x-label {
-  font-size: 16px;
+  font-size: 1rem;
   pointer-events: none;
 }
 x-avatar[size="small"] > x-label {
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 x-avatar[size="large"] > x-label {
-  font-size: 24px;
+  font-size: 1.5rem;
 }
 
 /*****************************************************************************************************************/
@@ -705,13 +721,13 @@ x-tag[size="large"] > x-swatch {
 
 /* Label */
 x-tag > x-label {
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 x-tag :not(x-label) + x-label {
-  margin-left: 4px;
+  margin-left: 0.25rem;
 }
 x-tag[size="small"] > x-label {
-  font-size: 11px;
+  font-size: 0.6875rem;
 }
 
 /* Icon */
@@ -890,6 +906,10 @@ x-menuitem[size="large"] {
 x-menuitem:not(:defined) {
   display: none;
 }
+x-menuitem[highlighted] {
+  color: white;
+  background: var(--accent-color);
+}
 
 /* Image */
 x-menuitem img {
@@ -911,6 +931,7 @@ x-menuitem x-label {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: inherit;
+  line-height: 1.4;
 }
 x-menuitem img + x-label,
 x-menuitem x-swatch + x-label,
@@ -947,6 +968,9 @@ x-menubar > x-menuitem {
   height: 100%;
   padding: 0 11px;
   min-height: 0;
+}
+x-menubar > x-menuitem[autohidden] {
+  display: none;
 }
 
 /*****************************************************************************************************************/
@@ -988,7 +1012,7 @@ x-nav x-label {
   white-space: nowrap;
   text-overflow: ellipsis;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 0.9375rem;
   text-align: start;
 }
 x-nav x-icon + x-label {
@@ -1049,7 +1073,7 @@ dialog {
   margin: auto;
   padding: 20px 24px;
   box-sizing: border-box;
-  font-size: 13px;
+  font-size: 0.8125rem;
   line-height: 1.6;
 }
 dialog:focus {
@@ -1089,7 +1113,7 @@ dialog > footer x-button + x-button {
 
 /* Heading */
 dialog h3 {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 700;
 }
 
@@ -1369,9 +1393,6 @@ x-numberinput[size="small"] {
 }
 x-numberinput[size="large"] {
   height: 38px;
-}
-x-numberinput:not([condensed])[hasstepper] {
-  margin-right: 18px;
 }
 x-numberinput:focus {
   z-index: 10;
